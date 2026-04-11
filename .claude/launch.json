@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "risus-dev",
+      "runtimeExecutable": "/usr/local/bin/node",
+      "runtimeArgs": ["./node_modules/.bin/vite"],
+      "port": 5175,
+      "autoPort": true
+    }
+  ]
+}

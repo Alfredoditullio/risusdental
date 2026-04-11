@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: 'Space Grotesk', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  cursor: none;
+}
+
+/* Hide default cursor everywhere — replaced by BubbleCursor */
+*, *::before, *::after {
+  cursor: none !important;
+}
+
+::selection {
+  background: #EC3B79;
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Floating animation for bubbles */
+@keyframes float {
+  0% {
+    transform: translate(var(--tx, 0px), var(--ty, 0px)) translate(-50%, -50%) translateY(0px);
+  }
+  100% {
+    transform: translate(var(--tx, 0px), var(--ty, 0px)) translate(-50%, -50%) translateY(-20px);
+  }
+}

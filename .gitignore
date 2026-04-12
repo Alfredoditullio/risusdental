@@ -5,3 +5,8 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Source/original images (not served, use public/ copies instead)
+assets/
+public/boca.jpg
+public/rodrigocomunidad.png

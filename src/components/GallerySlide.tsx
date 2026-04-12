@@ -1,463 +1,490 @@
 /**
- * GallerySlide — Swiper carousel inspired by Slider Revolution "Event Booking Tiny Slider".
- *
- * - Centred carousel, 2.4 slides visible, peek on sides
- * - Tall portrait cards with glassmorphism bottom overlay
- * - GSAP exploding-layers entry (whole track implodes from scatter)
- * - Click → GSAP lightbox
- * - Infinite loop, touch/drag enabled
+ * GallerySlide — Portfolio Gallery estilo "Browse my library"
+ * Cards horizontales en la base, escalonadas en arco, hover sube la card.
+ * Click → lightbox con foto + testimonio.
+ * Mobile → scrollable 2-col grid + lightbox vertical.
  */
+import { useState, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useIsMobile } from '../hooks/useIsMobile'
 
-import { useRef, useEffect, useState, useCallback } from 'react'
-import gsap from 'gsap'
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { Navigation, Pagination, A11y, Autoplay } from 'swiper/modules'
-import 'swiper/css'
-import 'swiper/css/navigation'
-import 'swiper/css/pagination'
-
-interface GallerySlideProps {
-  active: boolean
+interface Testimonial {
+  quote: string
+  name: string
+  designation: string
+  src: string
+  tag: string
 }
 
-interface Card {
-  src: string | null
-  alt?: string
-  objectPos?: string
-  gradient?: string
-  label: string
-  sublabel?: string
-  tag?: string
-}
+interface Props { active: boolean }
 
-const CARDS: Card[] = [
+const ITEMS: Testimonial[] = [
   {
-    src: '/rodrigo.webp',
-    alt: 'Dr. Rodrigo Melo',
-    objectPos: 'center top',
-    label: 'Dr. Rodrigo Melo',
-    sublabel: 'Odontólogo General',
-    tag: 'Equipo',
+    quote: 'Hacía años que no me animaba a sonreír en fotos. Rodrigo me dio la confianza que necesitaba. El resultado superó todas mis expectativas.',
+    name: 'Valentina R.', designation: 'Ortodoncia + Blanqueamiento', tag: 'Antes / Después',
+    src: '/gallery/192ED7D2-539B-4541-90E9-4C62CE36508E.JPG',
   },
   {
-    src: '/diente_gay.webp',
-    alt: 'Estética dental',
-    objectPos: 'center center',
-    label: 'Diseño de Sonrisa',
-    sublabel: 'Transformá tu sonrisa',
-    tag: 'Estética',
+    quote: 'Vine buscando un espacio donde me sintiera cómodo siendo yo mismo. Risus Dental es un lugar sin juicios, con atención de primera.',
+    name: 'Mateo G.', designation: 'Estética Dental', tag: 'Estética',
+    src: '/gallery/1E879776-12AE-4C4B-B136-0F683A255FAF.JPG',
   },
   {
-    src: '/diente3d.webp',
-    alt: 'Implante dental',
-    objectPos: 'center center',
-    label: 'Implantología',
-    sublabel: 'Tecnología de vanguardia',
-    tag: 'Servicios',
+    quote: 'Me hice los alineadores Go Smile y cambió mi vida. Rodrigo te explica todo y los resultados son increíbles.',
+    name: 'Lucía M.', designation: 'Go Smile Alineadores', tag: 'Alineadores',
+    src: '/gallery/209B686B-A1C1-4C10-9165-140E01570343.JPG',
   },
   {
-    src: null,
-    gradient: 'linear-gradient(160deg,#EC3B79 0%,#9B59B6 60%,#1E8ED0 100%)',
-    label: 'Blanqueamiento',
-    sublabel: 'Resultados visibles',
-    tag: 'Estética',
+    quote: 'Llegué con miedo al dentista y salí con una sonrisa nueva. La atención es cálida, profesional y el espacio es divino.',
+    name: 'Camila T.', designation: 'Control + Limpieza', tag: 'Consultorio',
+    src: '/gallery/2DEFFDDF-7F21-4A67-9E31-CC2963BD8FD8.JPG',
   },
   {
-    src: null,
-    gradient: 'linear-gradient(160deg,#1E8ED0 0%,#E4FC2D 100%)',
-    label: 'Ortodoncia',
-    sublabel: 'Alineación perfecta',
-    tag: 'Tratamientos',
+    quote: 'Rodrigo tiene una habilidad única para que te sientas tranquilo. Vine por una consulta y me quedé por toda la familia.',
+    name: 'Sebastián F.', designation: 'Brackets Autoligado', tag: 'Brackets',
+    src: '/gallery/4AFCA468-8FA3-4ED6-93F7-AB891174CD4C.JPG',
   },
   {
-    src: null,
-    gradient: 'linear-gradient(160deg,#FAB0EA 0%,#EC3B79 100%)',
-    label: 'Periodoncia',
-    sublabel: 'Salud encías',
-    tag: 'Clínica',
+    quote: 'Nunca pensé que ir al dentista podía ser tan agradable. Salí con otra cara y con ganas de volver.',
+    name: 'Florencia S.', designation: 'Diseño de Sonrisa', tag: 'Diseño',
+    src: '/gallery/54338861-6CDD-4B83-B6A0-E2E11F02A630.JPG',
   },
   {
-    src: null,
-    gradient: 'linear-gradient(160deg,#F39C12 0%,#EC3B79 100%)',
-    label: 'Endodoncia',
-    sublabel: 'Sin dolor, con cuidado',
-    tag: 'Clínica',
+    quote: 'En la primera visita ya me sentí en el lugar correcto. El consultorio es increíble y Rodrigo explica todo con claridad.',
+    name: 'Tomás V.', designation: 'Go Smile Alineadores', tag: 'Alineadores',
+    src: '/gallery/62A5FEED-E380-45F7-92BE-165719B5FA0A.JPG',
   },
   {
-    src: null,
-    gradient: 'linear-gradient(160deg,#9B59B6 0%,#1E8ED0 100%)',
-    label: 'Odontopediatría',
-    sublabel: 'Para los más chicos',
-    tag: 'Especialidades',
+    quote: 'El espacio es divino, la atención es cálida y los resultados son increíbles. No me voy a ningún otro lado.',
+    name: 'Agustina P.', designation: 'Ortodoncia', tag: 'Ortodoncia',
+    src: '/gallery/66F0762E-958B-4079-985B-3348D16A867E.JPG',
   },
   {
-    src: null,
-    gradient: 'linear-gradient(160deg,#EC3B79 20%,#F39C12 100%)',
-    label: 'Urgencias',
-    sublabel: 'Atención inmediata',
-    tag: 'Emergencias',
+    quote: 'Rodrigo hace que todo sea fácil. Muy profesional, muy humano. Los resultados hablan solos.',
+    name: 'Nicolás M.', designation: 'Brackets Autoligado', tag: 'Brackets',
+    src: '/gallery/78172AF3-0D85-4276-988F-2AD958FC6846.JPG',
+  },
+  {
+    quote: 'Todo fue impecable desde la primera consulta. El consultorio tiene una energía muy especial.',
+    name: 'Julieta R.', designation: 'Estética Facial', tag: 'Facial',
+    src: '/gallery/79F2BAB0-6FF2-4615-8624-1BDB4840B6B7.JPG',
   },
 ]
 
-export function GallerySlide({ active }: GallerySlideProps) {
-  const wrapRef   = useRef<HTMLDivElement>(null)
-  const titleRef  = useRef<HTMLDivElement>(null)
-  const trackRef  = useRef<HTMLDivElement>(null)
-  const ctaRef    = useRef<HTMLDivElement>(null)
-  const tlRef     = useRef<gsap.core.Timeline | null>(null)
+const TOTAL   = ITEMS.length
+const CENTER  = (TOTAL - 1) / 2   // 4.5
+const CARD_W  = 185
+const CARD_H  = 275
+const OVERLAP = 55   // how much cards overlap each other
 
-  const [lightbox, setLightbox] = useState<number | null>(null)
-  const lbOverlayRef  = useRef<HTMLDivElement>(null)
-  const lbContentRef  = useRef<HTMLDivElement>(null)
+export function GallerySlide({ active }: Props) {
+  const isMobile = useIsMobile()
+  const [hovered,  setHovered]  = useState<number | null>(null)
+  const [selected, setSelected] = useState<number | null>(null)
 
-  // ── Entry / exit animation ─────────────────────────────────────────────────
-  useEffect(() => {
-    tlRef.current?.kill()
-    const tl = gsap.timeline()
-    tlRef.current = tl
+  const handleClose = useCallback(() => setSelected(null), [])
 
-    if (active) {
-      tl.fromTo(titleRef.current,
-        { y: -60, opacity: 0, rotation: -5, scale: 0.8 },
-        { y: 0, opacity: 1, rotation: 0, scale: 1, duration: 0.7, ease: 'back.out(1.8)' }, 0)
+  // For each card: rotateY and translateY based on distance from center
+  function getTransform(i: number, isHov: boolean) {
+    const dist     = i - CENTER                  // -4.5 … +4.5
+    const rotateY  = dist * 7                    // degrees, outer cards tilt more
+    const arcY     = (CENTER - Math.abs(dist)) * 32  // px, center cards sit lower
+    const liftY    = isHov ? -180 : 0
+    return { rotateY, translateY: arcY + liftY }
+  }
 
-      tl.fromTo(trackRef.current,
-        { y: 120, opacity: 0, scale: 0.88 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.85, ease: 'expo.out' }, 0.12)
+  // ── Mobile layout ─────────────────────────────────────────────────────────
+  if (isMobile) {
+    return (
+      <div className={`absolute inset-0 z-10 pointer-events-none ${active ? 'visible' : 'invisible'}`}>
+        <div style={{
+          position: 'absolute', inset: 0,
+          display: 'flex', flexDirection: 'column',
+          padding: '68px 14px 76px',
+          gap: 10,
+          pointerEvents: 'auto',
+          opacity: active ? 1 : 0,
+          transition: 'opacity 0.45s ease',
+        }}>
+          <div style={{ textAlign: 'center', flexShrink: 0 }}>
+            <p style={{ fontFamily: 'inherit', fontSize: '9px', fontWeight: 600, letterSpacing: '0.38em', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', margin: '0 0 6px' }}>
+              Risus Dental · Galería
+            </p>
+            <h2 style={{ fontFamily: 'inherit', fontSize: 'clamp(1.8rem,8vw,2.4rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.04em', lineHeight: 0.9, margin: 0 }}>
+              SONRISAS REALES
+            </h2>
+          </div>
 
-      tl.fromTo(ctaRef.current,
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.45, ease: 'power2.out' }, 0.75)
-
-    } else {
-      tl.to(titleRef.current,  { y: -50, opacity: 0, duration: 0.28, ease: 'power2.in' }, 0)
-      tl.to(trackRef.current,  { y: 80, opacity: 0, scale: 0.9, duration: 0.35, ease: 'power2.in' }, 0.04)
-      tl.to(ctaRef.current,    { opacity: 0, duration: 0.18 }, 0)
-    }
-  }, [active])
-
-  // ── Lightbox ───────────────────────────────────────────────────────────────
-  const openLightbox = useCallback((i: number) => setLightbox(i), [])
-
-  useEffect(() => {
-    if (lightbox === null || !lbOverlayRef.current || !lbContentRef.current) return
-    gsap.fromTo(lbOverlayRef.current,
-      { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' })
-    gsap.fromTo(lbContentRef.current,
-      { scale: 0.72, opacity: 0, y: 40 },
-      { scale: 1, opacity: 1, y: 0, duration: 0.45, ease: 'back.out(1.5)' })
-  }, [lightbox])
-
-  const closeLightbox = useCallback(() => {
-    if (!lbOverlayRef.current || !lbContentRef.current) return
-    gsap.to(lbContentRef.current, { scale: 0.82, opacity: 0, y: 20, duration: 0.25, ease: 'power2.in' })
-    gsap.to(lbOverlayRef.current, {
-      opacity: 0, duration: 0.3, ease: 'power2.in',
-      onComplete: () => setLightbox(null),
-    })
-  }, [])
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeLightbox() }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [closeLightbox])
-
-  const activeCard = lightbox !== null ? CARDS[lightbox] : null
-
-  return (
-    <>
-      <div
-        ref={wrapRef}
-        className={`absolute inset-0 z-10 flex flex-col pointer-events-none
-                    pt-20 pb-8 gap-5 ${active ? 'visible' : 'invisible'}`}
-      >
-        {/* Title */}
-        <div ref={titleRef} className="flex items-baseline gap-4 shrink-0 px-10 lg:px-14" style={{ opacity: 0 }}>
-          <h2
-            className="font-display font-bold text-white text-3xl md:text-5xl tracking-tight leading-none select-none"
-            style={{ textShadow: '0 4px 28px rgba(0,0,0,0.25)' }}
-          >
-            GALERÍA
-          </h2>
-          <span className="hidden md:block font-display text-white/40 text-xs uppercase tracking-[0.28em]">
-            Sonrisas que transforman vidas
-          </span>
+          {/* Scrollable 2-col grid */}
+          <div style={{
+            flex: 1, overflowY: 'auto',
+            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8,
+            WebkitOverflowScrolling: 'touch',
+          }}>
+            {ITEMS.map((item, i) => (
+              <div
+                key={item.src}
+                onClick={() => setSelected(i)}
+                style={{
+                  borderRadius: 12, overflow: 'hidden', cursor: 'pointer',
+                  aspectRatio: '3/4', position: 'relative',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                }}
+              >
+                <img src={item.src} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)' }} />
+                <div style={{ position: 'absolute', bottom: 8, left: 8, right: 8 }}>
+                  <p style={{ fontFamily: 'inherit', fontSize: '10px', fontWeight: 800, color: 'white', margin: '0 0 2px', lineHeight: 1.1 }}>{item.name}</p>
+                  <p style={{ fontFamily: 'inherit', fontSize: '8px', fontWeight: 600, color: 'rgba(236,59,121,0.9)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{item.tag}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Swiper track */}
-        <div ref={trackRef} className="flex-1 min-h-0 pointer-events-auto" style={{ opacity: 0 }}>
-          <Swiper
-            modules={[Navigation, Pagination, A11y, Autoplay]}
-            slidesPerView={1.35}
-            spaceBetween={18}
-            centeredSlides={true}
-            loop={true}
-            autoplay={{ delay: 3800, disableOnInteraction: false, pauseOnMouseEnter: true }}
-            navigation
-            pagination={{ clickable: true, dynamicBullets: true }}
-            breakpoints={{
-              640:  { slidesPerView: 1.8, spaceBetween: 20 },
-              900:  { slidesPerView: 2.4, spaceBetween: 24 },
-              1280: { slidesPerView: 2.8, spaceBetween: 28 },
+        {/* Mobile Lightbox */}
+        <AnimatePresence>
+          {selected !== null && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={handleClose}
+              style={{
+                position: 'absolute', inset: 0,
+                background: 'rgba(0,0,0,0.92)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                zIndex: 100, pointerEvents: 'auto',
+              }}
+            >
+              <motion.div
+                initial={{ y: 40, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 20, opacity: 0 }}
+                transition={{ duration: 0.24, ease: 'easeOut' }}
+                onClick={e => e.stopPropagation()}
+                style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%' }}
+              >
+                {/* Photo top half */}
+                <div style={{ flex: '0 0 55%', overflow: 'hidden' }}>
+                  <img src={ITEMS[selected].src} alt={ITEMS[selected].name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }} />
+                </div>
+                {/* Info bottom half */}
+                <div style={{
+                  flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                  padding: '20px 24px', gap: 10,
+                  background: 'rgba(10,6,30,0.9)',
+                }}>
+                  <span style={{ display: 'inline-block', fontFamily: 'inherit', fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', background: '#EC3B79', color: 'white', borderRadius: '999px', padding: '4px 12px', alignSelf: 'flex-start' }}>
+                    {ITEMS[selected].tag}
+                  </span>
+                  <h3 style={{ fontFamily: 'inherit', fontSize: 'clamp(1.4rem,6vw,1.8rem)', fontWeight: 900, color: 'white', letterSpacing: '-0.03em', lineHeight: 1, margin: 0 }}>
+                    {ITEMS[selected].name}
+                  </h3>
+                  <p style={{ fontFamily: 'inherit', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.38)', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>
+                    {ITEMS[selected].designation}
+                  </p>
+                  <p style={{ fontFamily: 'inherit', fontSize: 'clamp(0.82rem,4vw,0.95rem)', lineHeight: 1.65, color: 'rgba(255,255,255,0.85)', margin: 0 }}>
+                    {ITEMS[selected].quote}
+                  </p>
+                  {/* Nav */}
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 4 }}>
+                    {[[-1, 'M10 3L5 8l5 5'], [1, 'M6 3l5 5-5 5']].map(([dir, path]) => (
+                      <button key={String(dir)} onClick={() => setSelected((selected + Number(dir) + TOTAL) % TOTAL)} style={{ width: 44, height: 44, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d={String(path)} stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      </button>
+                    ))}
+                    <span style={{ fontFamily: 'inherit', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.28)', marginLeft: 4 }}>
+                      {String(selected + 1).padStart(2,'0')} / {String(TOTAL).padStart(2,'0')}
+                    </span>
+                    {/* Close */}
+                    <button onClick={handleClose} style={{ marginLeft: 'auto', width: 44, height: 44, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.15)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1 1l11 11M12 1L1 12" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    )
+  }
+
+  // ── Desktop layout ─────────────────────────────────────────────────────────
+  return (
+    <div className={`absolute inset-0 z-10 pointer-events-none ${active ? 'visible' : 'invisible'}`}>
+
+      {/* ── Headline ── */}
+      <div style={{
+        position: 'absolute',
+        top: 'clamp(110px,14vh,160px)',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        textAlign: 'center',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
+        pointerEvents: 'none',
+      }}>
+        <p style={{
+          fontFamily: 'inherit', fontSize: '10px', fontWeight: 600,
+          letterSpacing: '0.42em', color: 'rgba(255,255,255,0.35)',
+          textTransform: 'uppercase', margin: 0,
+        }}>
+          Risus Dental · Galería
+        </p>
+        <h2 style={{
+          fontFamily: 'inherit',
+          fontSize: 'clamp(2.4rem, 4.5vw, 5rem)',
+          fontWeight: 900, color: '#fff',
+          letterSpacing: '-0.04em', lineHeight: 0.88,
+          textShadow: '0 4px 40px rgba(0,0,0,0.3)',
+          margin: 0,
+        }}>
+          SONRISAS REALES
+        </h2>
+        <p style={{
+          fontFamily: 'inherit', fontSize: 'clamp(0.78rem, 1vw, 0.9rem)',
+          color: 'rgba(255,255,255,0.4)', margin: 0, lineHeight: 1.5,
+        }}>
+          Casos reales de pacientes · hover para ver · click para leer
+        </p>
+      </div>
+
+      {/* ── Card fan row ── */}
+      <div style={{
+        position: 'absolute',
+        bottom: 'clamp(80px,12vh,140px)',
+        left: 0, right: 0,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+        perspective: '1200px',
+        perspectiveOrigin: '50% 100%',
+        pointerEvents: 'auto',
+        // extra bottom padding so cards are partially cropped at bottom = natural feel
+        paddingBottom: 0,
+      }}>
+        {ITEMS.map((item, i) => {
+          const isHov  = hovered === i
+          const { rotateY, translateY } = getTransform(i, isHov)
+
+          return (
+            <motion.div
+              key={item.src}
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+              onClick={() => setSelected(i)}
+              animate={{
+                y: translateY,
+                rotateY,
+                scale: isHov ? 1.08 : 1,
+              }}
+              transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+              style={{
+                width: CARD_W,
+                height: CARD_H,
+                flexShrink: 0,
+                marginLeft: i === 0 ? 0 : -OVERLAP,
+                cursor: 'pointer',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                position: 'relative',
+                transformOrigin: 'bottom center',
+                boxShadow: isHov
+                  ? '0 -24px 60px rgba(236,59,121,0.4), 0 8px 40px rgba(0,0,0,0.6)'
+                  : '0 8px 32px rgba(0,0,0,0.5)',
+                zIndex: isHov ? 50 : i < CENTER ? i : TOTAL - i,
+                border: isHov ? '2px solid rgba(236,59,121,0.8)' : '2px solid transparent',
+                transition: 'box-shadow 0.25s ease, border 0.25s ease',
+              }}
+            >
+              <img
+                src={item.src}
+                alt={item.name}
+                style={{
+                  width: '100%', height: '100%',
+                  objectFit: 'cover', objectPosition: 'center top',
+                  display: 'block',
+                  transform: isHov ? 'scale(1.06)' : 'scale(1)',
+                  transition: 'transform 0.4s ease',
+                }}
+              />
+
+              {/* Gradient overlay */}
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)',
+                pointerEvents: 'none',
+              }}/>
+
+              {/* Name + tag — show on hover */}
+              <div style={{
+                position: 'absolute', bottom: 10, left: 10, right: 10,
+                opacity: isHov ? 1 : 0,
+                transform: isHov ? 'translateY(0)' : 'translateY(6px)',
+                transition: 'opacity 0.22s ease, transform 0.22s ease',
+                pointerEvents: 'none',
+              }}>
+                <p style={{
+                  fontFamily: 'inherit', fontSize: '11px', fontWeight: 800,
+                  color: 'white', margin: '0 0 3px', lineHeight: 1.1,
+                }}>
+                  {item.name}
+                </p>
+                <p style={{
+                  fontFamily: 'inherit', fontSize: '9px', fontWeight: 600,
+                  color: 'rgba(236,59,121,0.9)', margin: 0, textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                }}>
+                  {item.tag}
+                </p>
+              </div>
+            </motion.div>
+          )
+        })}
+      </div>
+
+      {/* ── Lightbox ── */}
+      <AnimatePresence>
+        {selected !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={handleClose}
+            style={{
+              position: 'absolute', inset: 0,
+              background: 'rgba(0,0,0,0.85)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              zIndex: 100, pointerEvents: 'auto',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
             }}
-            style={{ height: '100%', paddingBottom: '2.5rem' }}
           >
-            {CARDS.map((card, i) => (
-              <SwiperSlide key={i} style={{ height: '100%' }}>
-                {({ isActive }) => (
-                  <button
-                    onClick={() => openLightbox(i)}
-                    className="relative w-full h-full rounded-2xl overflow-hidden group
-                               focus:outline-none cursor-pointer block"
-                    style={{
-                      background: card.gradient ?? '#111',
-                      transition: 'transform 0.4s cubic-bezier(.25,.8,.25,1), box-shadow 0.4s',
-                      transform: isActive ? 'scale(1)' : 'scale(0.93)',
-                      boxShadow: isActive
-                        ? '0 28px 60px rgba(0,0,0,0.55), 0 0 0 2px rgba(236,59,121,0.35)'
-                        : '0 12px 30px rgba(0,0,0,0.35)',
-                    }}
-                  >
-                    {/* Photo */}
-                    {card.src && (
-                      <img
-                        src={card.src}
-                        alt={card.alt}
-                        className="absolute inset-0 w-full h-full object-cover
-                                   transition-transform duration-700 ease-out group-hover:scale-105"
-                        style={{ objectPosition: card.objectPos }}
-                      />
-                    )}
+            <motion.div
+              initial={{ scale: 0.88, opacity: 0, y: 24 }}
+              animate={{ scale: 1,    opacity: 1, y: 0 }}
+              exit={{    scale: 0.92, opacity: 0, y: 16 }}
+              transition={{ duration: 0.26, ease: 'easeOut' }}
+              onClick={e => e.stopPropagation()}
+              style={{
+                display: 'flex', gap: '20px',
+                maxWidth: '820px', width: '90%',
+                height: 'clamp(320px, 58vh, 520px)',
+                position: 'relative',
+              }}
+            >
+              {/* Photo */}
+              <div style={{
+                flex: '0 0 44%', borderRadius: '18px', overflow: 'hidden',
+                boxShadow: '0 24px 80px rgba(0,0,0,0.6)',
+              }}>
+                <img
+                  src={ITEMS[selected].src}
+                  alt={ITEMS[selected].name}
+                  style={{
+                    width: '100%', height: '100%',
+                    objectFit: 'cover', objectPosition: 'center top', display: 'block',
+                  }}
+                />
+              </div>
 
-                    {/* Gradient overlay — always present for text legibility */}
-                    <div
-                      className="absolute inset-0"
+              {/* Info card */}
+              <div style={{
+                flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                gap: '14px',
+                background: 'rgba(10,6,30,0.75)',
+                borderRadius: '18px',
+                border: '1px solid rgba(255,255,255,0.12)',
+                padding: '32px 28px',
+              }}>
+                <span style={{
+                  display: 'inline-block', fontFamily: 'inherit',
+                  fontSize: '10px', fontWeight: 700,
+                  letterSpacing: '0.14em', textTransform: 'uppercase',
+                  background: '#EC3B79', color: 'white',
+                  borderRadius: '999px', padding: '4px 12px',
+                  alignSelf: 'flex-start',
+                }}>
+                  {ITEMS[selected].tag}
+                </span>
+
+                <h3 style={{
+                  fontFamily: 'inherit',
+                  fontSize: 'clamp(1.5rem, 2.5vw, 2.1rem)',
+                  fontWeight: 900, color: 'white',
+                  letterSpacing: '-0.03em', lineHeight: 1, margin: 0,
+                }}>
+                  {ITEMS[selected].name}
+                </h3>
+
+                <p style={{
+                  fontFamily: 'inherit', fontSize: '11px', fontWeight: 600,
+                  color: 'rgba(255,255,255,0.38)', letterSpacing: '0.08em',
+                  textTransform: 'uppercase', margin: 0,
+                }}>
+                  {ITEMS[selected].designation}
+                </p>
+
+                <svg width="22" height="16" viewBox="0 0 22 16" fill="rgba(236,59,121,0.55)">
+                  <path d="M0 16V9.6C0 4.267 2.933 1.067 8.8 0l1.2 2C7.2 2.8 5.467 4.533 5.2 7.2H9V16H0zm13 0V9.6C13 4.267 15.933 1.067 21.8 0L23 2C20.2 2.8 18.467 4.533 18.2 7.2H22V16H13z"/>
+                </svg>
+
+                <p style={{
+                  fontFamily: 'inherit',
+                  fontSize: 'clamp(0.85rem, 1.15vw, 1rem)',
+                  lineHeight: 1.75, color: 'rgba(255,255,255,0.88)', margin: 0,
+                }}>
+                  {ITEMS[selected].quote}
+                </p>
+
+                {/* Nav */}
+                <div style={{ display: 'flex', gap: '10px', marginTop: '4px', alignItems: 'center' }}>
+                  {[[-1, 'M10 3L5 8l5 5'], [1, 'M6 3l5 5-5 5']].map(([dir, path]) => (
+                    <button
+                      key={String(dir)}
+                      onClick={() => setSelected((selected + Number(dir) + TOTAL) % TOTAL)}
                       style={{
-                        background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.15) 55%, transparent 100%)',
-                      }}
-                    />
-
-                    {/* Tag pill — top left */}
-                    {card.tag && (
-                      <div
-                        className="absolute top-4 left-4"
-                        style={{
-                          background: 'rgba(236,59,121,0.85)',
-                          backdropFilter: 'blur(8px)',
-                          borderRadius: '999px',
-                          padding: '4px 12px',
-                        }}
-                      >
-                        <span
-                          style={{
-                            fontFamily: 'inherit',
-                            fontSize: '10px',
-                            fontWeight: 700,
-                            letterSpacing: '0.18em',
-                            color: '#fff',
-                            textTransform: 'uppercase',
-                          }}
-                        >
-                          {card.tag}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Bottom glassmorphism overlay — RevSlider style */}
-                    <div
-                      className="absolute bottom-0 left-0 right-0"
-                      style={{
-                        backdropFilter: 'blur(14px)',
-                        WebkitBackdropFilter: 'blur(14px)',
-                        background: 'rgba(0,0,0,0.38)',
-                        borderTop: '1px solid rgba(255,255,255,0.12)',
-                        padding: '16px 20px 20px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '6px',
-                      }}
-                    >
-                      <p
-                        style={{
-                          fontFamily: 'inherit',
-                          fontSize: '11px',
-                          fontWeight: 600,
-                          letterSpacing: '0.22em',
-                          color: '#EC3B79',
-                          textTransform: 'uppercase',
-                          margin: 0,
-                        }}
-                      >
-                        {card.sublabel}
-                      </p>
-                      <h3
-                        style={{
-                          fontFamily: 'inherit',
-                          fontSize: 'clamp(1rem, 2.2vw, 1.35rem)',
-                          fontWeight: 700,
-                          color: '#fff',
-                          margin: 0,
-                          letterSpacing: '-0.01em',
-                          lineHeight: 1.15,
-                        }}
-                      >
-                        {card.label}
-                      </h3>
-
-                      {/* Book button — only on active slide */}
-                      <div
-                        style={{
-                          marginTop: '10px',
-                          overflow: 'hidden',
-                          maxHeight: isActive ? '44px' : '0px',
-                          opacity: isActive ? 1 : 0,
-                          transition: 'max-height 0.35s ease, opacity 0.35s ease',
-                        }}
-                      >
-                        <span
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            background: 'linear-gradient(90deg,#EC3B79,#9B59B6)',
-                            borderRadius: '999px',
-                            padding: '8px 20px',
-                            fontSize: '11px',
-                            fontWeight: 700,
-                            letterSpacing: '0.16em',
-                            color: '#fff',
-                            textTransform: 'uppercase',
-                          }}
-                        >
-                          VER MÁS
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <path d="M2 6h8M7 3l3 3-3 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Hover expand icon */}
-                    <div
-                      className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      style={{
-                        width: 36, height: 36, borderRadius: '50%',
-                        background: 'rgba(255,255,255,0.15)',
-                        backdropFilter: 'blur(8px)',
-                        border: '1px solid rgba(255,255,255,0.3)',
+                        width: 36, height: 36, borderRadius: '50%', border: 'none',
+                        background: 'rgba(255,255,255,0.1)', cursor: 'pointer',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}
                     >
-                      <svg width="14" height="14" fill="none" stroke="white" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                          d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                        <path d={String(path)} stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                    </div>
-                  </button>
-                )}
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
+                    </button>
+                  ))}
+                  <span style={{
+                    fontFamily: 'inherit', fontSize: '11px', fontWeight: 600,
+                    color: 'rgba(255,255,255,0.28)', marginLeft: '4px',
+                  }}>
+                    {String(selected + 1).padStart(2,'0')} / {String(TOTAL).padStart(2,'0')}
+                  </span>
+                </div>
+              </div>
 
-        {/* CTA */}
-        <div ref={ctaRef} className="flex justify-center shrink-0 pointer-events-auto pb-2" style={{ opacity: 0 }}>
-          <button
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: '10px',
-              background: 'linear-gradient(90deg,#EC3B79,#9B59B6)',
-              borderRadius: '999px', padding: '12px 32px',
-              fontSize: '12px', fontWeight: 700, letterSpacing: '0.18em',
-              color: '#fff', textTransform: 'uppercase',
-              boxShadow: '0 8px 28px rgba(236,59,121,0.4)',
-              border: 'none', cursor: 'pointer',
-            }}
-          >
-            PEDIR TURNO
-          </button>
-        </div>
-      </div>
-
-      {/* Swiper overrides */}
-      <style>{`
-        .swiper-button-next, .swiper-button-prev {
-          color: white !important;
-          background: rgba(0,0,0,0.4);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255,255,255,0.2);
-          border-radius: 50%;
-          width: 42px !important;
-          height: 42px !important;
-          margin-top: -21px;
-        }
-        .swiper-button-next::after, .swiper-button-prev::after {
-          font-size: 14px !important;
-          font-weight: 800;
-        }
-        .swiper-button-next:hover, .swiper-button-prev:hover {
-          background: rgba(236,59,121,0.6) !important;
-        }
-        .swiper-pagination-bullet {
-          background: rgba(255,255,255,0.5) !important;
-        }
-        .swiper-pagination-bullet-active {
-          background: #EC3B79 !important;
-        }
-      `}</style>
-
-      {/* ── Lightbox ──────────────────────────────────────────────────────── */}
-      {lightbox !== null && (
-        <div
-          ref={lbOverlayRef}
-          className="fixed inset-0 z-[300] flex items-center justify-center p-6 md:p-12"
-          style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(14px)' }}
-          onClick={closeLightbox}
-        >
-          <div
-            ref={lbContentRef}
-            className="relative max-w-3xl w-full"
-            onClick={e => e.stopPropagation()}
-          >
-            {activeCard?.src ? (
-              <img
-                src={activeCard.src}
-                alt={activeCard.alt}
-                className="w-full max-h-[80vh] object-contain rounded-2xl"
-                style={{ boxShadow: '0 32px 80px rgba(0,0,0,0.6)' }}
-              />
-            ) : (
-              <div
-                className="w-full rounded-2xl flex flex-col items-center justify-center gap-4"
+              {/* Close */}
+              <button
+                onClick={handleClose}
                 style={{
-                  background: activeCard?.gradient,
-                  aspectRatio: '4/3',
-                  boxShadow: '0 32px 80px rgba(0,0,0,0.6)',
+                  position: 'absolute', top: -14, right: -14,
+                  width: 34, height: 34, borderRadius: '50%', border: 'none',
+                  background: 'rgba(255,255,255,0.15)', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}
               >
-                <svg className="w-12 h-12 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.4}
-                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.4} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                <svg width="12" height="12" viewBox="0 0 13 13" fill="none">
+                  <path d="M1 1l11 11M12 1L1 12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
-                <p className="font-display text-white/40 text-sm uppercase tracking-widest">{activeCard?.label}</p>
-              </div>
-            )}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            {/* Close */}
-            <button
-              onClick={closeLightbox}
-              className="absolute -top-4 -right-4 w-10 h-10 rounded-full bg-white/10
-                         backdrop-blur-sm border border-white/20 flex items-center justify-center
-                         text-white hover:bg-white/20 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
-    </>
+    </div>
   )
 }

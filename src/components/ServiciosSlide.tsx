@@ -1,5 +1,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
 import gsap from 'gsap'
+import { WHATSAPP_URL } from '../data/slides'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 
 interface ServiciosSlideProps { active: boolean }
@@ -20,12 +22,116 @@ const VISIBLE  = 4
 const STEP     = CARD_H + CARD_GAP
 const MAX_OFF  = (SERVICES.length - VISIBLE) * STEP
 
+// ── Mobile accordion component ────────────────────────────────────────────────
+function MobileServiciosSlide({ active }: { active: boolean }) {
+  const [expanded, setExpanded] = useState<number | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const entryTl = useRef<gsap.core.Timeline | null>(null)
+
+  useEffect(() => {
+    entryTl.current?.kill()
+    const tl = gsap.timeline()
+    entryTl.current = tl
+    if (active) {
+      gsap.set(containerRef.current, { y: 24, opacity: 0 })
+      tl.to(containerRef.current, { y: 0, opacity: 1, duration: 0.6, ease: 'expo.out' })
+    } else {
+      tl.to(containerRef.current, { opacity: 0, duration: 0.2, ease: 'power2.in' })
+      setExpanded(null)
+    }
+    return () => { entryTl.current?.kill() }
+  }, [active])
+
+  return (
+    <div className={`absolute inset-0 z-10 pointer-events-none ${active ? 'visible' : 'invisible'}`}>
+      <div
+        ref={containerRef}
+        style={{
+          position: 'absolute', inset: 0,
+          display: 'flex', flexDirection: 'column',
+          padding: '68px 16px 76px',
+          gap: 10,
+          pointerEvents: 'auto',
+          opacity: 0,
+        }}
+      >
+        {/* Headline */}
+        <div style={{ flexShrink: 0 }}>
+          <p style={{ fontFamily: 'inherit', fontSize: '9px', fontWeight: 600, letterSpacing: '0.38em', color: 'rgba(255,255,255,0.38)', textTransform: 'uppercase', margin: '0 0 6px' }}>
+            Risus Dental · Buenos Aires
+          </p>
+          <h2 style={{ fontFamily: 'inherit', fontSize: 'clamp(1.9rem,9vw,2.8rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.04em', lineHeight: 0.9, margin: '0 0 10px' }}>
+            TRATAMIENTOS
+          </h2>
+          <div style={{ width: 40, height: 3, background: 'linear-gradient(90deg,#EC3B79,#9B59B6)', borderRadius: 2 }} />
+        </div>
+
+        {/* Scrollable service cards */}
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8, WebkitOverflowScrolling: 'touch' as any }}>
+          {SERVICES.map((svc, i) => {
+            const isOpen = expanded === i
+            return (
+              <div
+                key={i}
+                onClick={() => setExpanded(isOpen ? null : i)}
+                style={{
+                  borderRadius: 12, overflow: 'hidden', flexShrink: 0,
+                  border: `1px solid ${isOpen ? svc.color + '80' : 'rgba(255,255,255,0.1)'}`,
+                  boxShadow: isOpen ? `0 0 18px ${svc.color}30` : 'none',
+                  transition: 'border-color 0.22s, box-shadow 0.22s',
+                  cursor: 'pointer',
+                }}
+              >
+                {/* Card header */}
+                <div style={{ display: 'flex', alignItems: 'stretch', height: 68 }}>
+                  <div style={{ width: 46, flexShrink: 0, background: svc.gradient, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                    <span style={{ fontSize: '16px', lineHeight: 1 }}>{svc.icon}</span>
+                    <span style={{ fontFamily: 'inherit', fontSize: '7px', fontWeight: 800, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.05em' }}>{svc.num}</span>
+                  </div>
+                  <div style={{ flex: 1, background: isOpen ? 'rgba(0,0,0,0.45)' : 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', padding: '0 12px', gap: 8, transition: 'background 0.22s' }}>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontFamily: 'inherit', fontSize: '13px', fontWeight: 700, color: '#fff', margin: 0, lineHeight: 1.2 }}>{svc.name}</p>
+                      <p style={{ fontFamily: 'inherit', fontSize: '10px', color: 'rgba(255,255,255,0.38)', margin: '3px 0 0' }}>{svc.tagline}</p>
+                    </div>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0, transition: 'transform 0.22s', transform: isOpen ? 'rotate(90deg)' : 'none', color: isOpen ? svc.color : 'rgba(255,255,255,0.25)' }}>
+                      <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </div>
+                {/* Expanded description */}
+                {isOpen && (
+                  <div style={{ background: 'rgba(0,0,0,0.55)', padding: '12px 14px 14px', borderTop: `1px solid ${svc.color}40` }}>
+                    <p style={{ fontFamily: 'inherit', fontSize: '12px', lineHeight: 1.65, color: 'rgba(255,255,255,0.82)', margin: '0 0 12px' }}>{svc.desc}</p>
+                    <a
+                      href={WHATSAPP_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={e => e.stopPropagation()}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#EC3B79,#9B59B6)', borderRadius: '999px', padding: '10px 22px', fontSize: '10px', fontWeight: 800, letterSpacing: '0.18em', color: 'white', textTransform: 'uppercase', textDecoration: 'none' }}
+                    >
+                      PEDIR TURNO
+                    </a>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function ServiciosSlide({ active }: ServiciosSlideProps) {
+  const isMobile = useIsMobile()
   // ── refs ──────────────────────────────────────────────────────────────────
   const titleRef    = useRef<HTMLDivElement>(null)
+  const leftColRef  = useRef<HTMLDivElement>(null)
+  const moonRef     = useRef<HTMLDivElement>(null)
   const listInRef   = useRef<HTMLDivElement>(null)
   const rightColRef = useRef<HTMLDivElement>(null)
   const cardRefs    = useRef<(HTMLDivElement | null)[]>([])
+  const [ctaHov, setCtaHov] = useState(false)
 
   // Expanded panel — always in DOM so GSAP refs stay stable
   const panelRef    = useRef<HTMLDivElement>(null)
@@ -56,9 +162,13 @@ export function ServiciosSlide({ active }: ServiciosSlideProps) {
     entryTl.current = tl
 
     if (active) {
-      tl.fromTo(titleRef.current,
-        { x: -80, opacity: 0, rotation: -4 },
-        { x: 0, opacity: 1, rotation: 0, duration: 0.65, ease: 'back.out(1.8)' }, 0)
+      gsap.set(moonRef.current,   { scale: 2.2, opacity: 0 })
+      gsap.set(leftColRef.current,{ x: -60, opacity: 0 })
+      // Moon: entra grande y se asienta
+      tl.to(moonRef.current, { scale: 1, opacity: 1, duration: 1.3, ease: 'power3.out' }, 0)
+      // Left column slides in
+      tl.to(leftColRef.current, { x: 0, opacity: 1, duration: 0.65, ease: 'expo.out' }, 0.15)
+      // Cards from right
       cardRefs.current.forEach((card, i) => {
         if (!card) return
         tl.fromTo(card,
@@ -74,7 +184,8 @@ export function ServiciosSlide({ active }: ServiciosSlideProps) {
       setActiveService(null)
       prevSvcRef.current = null
 
-      tl.to(titleRef.current, { x: -50, opacity: 0, duration: 0.25, ease: 'power2.in' }, 0)
+      tl.to(moonRef.current,    { scale: 0.4, opacity: 0, duration: 0.3, ease: 'power2.in' }, 0)
+      tl.to(leftColRef.current, { x: -50, opacity: 0, duration: 0.25, ease: 'power2.in' }, 0)
       cardRefs.current.forEach((card, i) => {
         if (!card) return
         tl.to(card, { x: 110, opacity: 0, duration: 0.22, ease: 'power2.in' }, i * 0.04)
@@ -140,7 +251,7 @@ export function ServiciosSlide({ active }: ServiciosSlideProps) {
           x: destX, y: destY, width: destW, height: destH,
           borderRadius: '13px', opacity: 0,
           duration: 0.36, ease: 'power2.in',
-          onComplete: () => gsap.set(panel, { pointerEvents: 'none' }),
+          onComplete: () => { gsap.set(panel, { pointerEvents: 'none' }) },
         })
       }
 
@@ -214,44 +325,107 @@ export function ServiciosSlide({ active }: ServiciosSlideProps) {
   const s = SERVICES[displaySvc]
   const winH = VISIBLE * CARD_H + (VISIBLE - 1) * CARD_GAP
 
+  // ── Mobile layout ──────────────────────────────────────────────────────────
+  if (isMobile) {
+    return (
+      <MobileServiciosSlide active={active} />
+    )
+  }
+
   return (
     <>
       <style>{`
-        @keyframes svc-moon-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
         @keyframes svc-moon-hue{
-          0%  {filter:drop-shadow(0 0 40px rgba(255,0,120,.85))  hue-rotate(0deg)   brightness(.7) saturate(7)}
-          14% {filter:drop-shadow(0 0 40px rgba(160,0,255,.85))  hue-rotate(52deg)  brightness(.65)saturate(8)}
-          28% {filter:drop-shadow(0 0 40px rgba(0,80,255,.85))   hue-rotate(105deg) brightness(.65)saturate(8)}
-          42% {filter:drop-shadow(0 0 40px rgba(0,200,180,.85))  hue-rotate(158deg) brightness(.7) saturate(7)}
-          57% {filter:drop-shadow(0 0 40px rgba(0,200,60,.85))   hue-rotate(210deg) brightness(.65)saturate(8)}
-          71% {filter:drop-shadow(0 0 40px rgba(220,200,0,.85))  hue-rotate(263deg) brightness(.65)saturate(8)}
-          85% {filter:drop-shadow(0 0 40px rgba(255,80,0,.85))   hue-rotate(316deg) brightness(.7) saturate(7)}
-          100%{filter:drop-shadow(0 0 40px rgba(255,0,120,.85))  hue-rotate(360deg) brightness(.7) saturate(7)}
+          0%  {filter:drop-shadow(0 0 50px rgba(255,0,120,.9))  hue-rotate(0deg)   brightness(.68) saturate(7)}
+          14% {filter:drop-shadow(0 0 50px rgba(160,0,255,.9))  hue-rotate(52deg)  brightness(.63) saturate(8)}
+          28% {filter:drop-shadow(0 0 50px rgba(0,80,255,.9))   hue-rotate(105deg) brightness(.63) saturate(8)}
+          42% {filter:drop-shadow(0 0 50px rgba(0,200,180,.9))  hue-rotate(158deg) brightness(.68) saturate(7)}
+          57% {filter:drop-shadow(0 0 50px rgba(0,200,60,.9))   hue-rotate(210deg) brightness(.63) saturate(8)}
+          71% {filter:drop-shadow(0 0 50px rgba(220,200,0,.9))  hue-rotate(263deg) brightness(.63) saturate(8)}
+          85% {filter:drop-shadow(0 0 50px rgba(255,80,0,.9))   hue-rotate(316deg) brightness(.68) saturate(7)}
+          100%{filter:drop-shadow(0 0 50px rgba(255,0,120,.9))  hue-rotate(360deg) brightness(.68) saturate(7)}
         }
       `}</style>
 
       {/* ── Slide layer ──────────────────────────────────────────────────── */}
       <div className={`absolute inset-0 z-10 pointer-events-none ${active ? 'visible' : 'invisible'}`}>
 
-        {/* Moon — centered with margin:auto (no transform conflict with animation) */}
-        <div style={{
+        {/* Moon — fixed, no rotation, only color cycle. GSAP handles entrance scale */}
+        <div ref={moonRef} style={{
           position:'absolute',
           inset:0, margin:'auto',
-          width:'clamp(480px,64vw,840px)', height:'clamp(480px,64vw,840px)',
-          animation:'svc-moon-spin 28s linear infinite, svc-moon-hue 3.5s linear infinite',
-          animationPlayState: active ? 'running' : 'paused',
-          willChange: active ? 'transform,filter' : 'auto',
+          width:'clamp(420px,56vw,740px)', height:'clamp(420px,56vw,740px)',
+          animation: active ? 'svc-moon-hue 4s linear infinite' : 'none',
           pointerEvents:'none',
+          opacity: 0,
         }}>
           <img src="/luna.webp" alt="" style={{width:'100%',height:'100%',objectFit:'contain',display:'block'}}/>
         </div>
 
-        {/* Title */}
-        <div ref={titleRef} style={{ position:'absolute', top:'clamp(68px,8vh,100px)', left:'clamp(24px,3.5vw,56px)', opacity:0 }}>
-          <p style={{fontFamily:'inherit',fontSize:'10px',fontWeight:600,letterSpacing:'0.4em',color:'rgba(255,255,255,0.4)',textTransform:'uppercase',margin:'0 0 8px'}}>Risus Dental</p>
-          <h2 style={{fontFamily:'inherit',fontSize:'clamp(1.6rem,4.2vw,4rem)',fontWeight:900,color:'#fff',letterSpacing:'-0.03em',lineHeight:0.92,textShadow:'0 4px 40px rgba(0,0,0,0.3)',margin:0,whiteSpace:'nowrap'}}>
-            TRATAMIENTOS
+        {/* ── Left column — headline + pitch + CTA ── */}
+        <div ref={leftColRef} style={{
+          position:'absolute', left:0, top:0, bottom:0,
+          width:'clamp(280px,38%,480px)',
+          display:'flex', flexDirection:'column', justifyContent:'center',
+          padding:'clamp(80px,10vh,120px) clamp(24px,4vw,64px) clamp(60px,8vh,100px)',
+          gap:'clamp(16px,2.5vh,28px)',
+          pointerEvents:'auto',
+          opacity: 0,
+        }}>
+          <p style={{fontFamily:'inherit',fontSize:'10px',fontWeight:600,letterSpacing:'0.42em',color:'rgba(255,255,255,0.38)',textTransform:'uppercase',margin:0}}>
+            Risus Dental · Buenos Aires
+          </p>
+
+          <h2 style={{
+            fontFamily:'inherit',
+            fontSize:'clamp(2.8rem,5.5vw,5.5rem)',
+            fontWeight:900, color:'#fff',
+            letterSpacing:'-0.04em', lineHeight:0.88,
+            textShadow:'0 4px 40px rgba(0,0,0,0.3)',
+            margin:0,
+          }}>
+            TRATA&shy;MIENTOS
           </h2>
+
+          <div style={{width:48,height:3,background:'linear-gradient(90deg,#EC3B79,#9B59B6)',borderRadius:2}}/>
+
+          <p style={{
+            fontFamily:'inherit',
+            fontSize:'clamp(0.88rem,1.1vw,1.05rem)',
+            lineHeight:1.75, color:'rgba(255,255,255,0.82)',
+            margin:0,
+            background:'rgba(0,0,0,0.28)',
+            WebkitBoxDecorationBreak:'clone',
+            boxDecorationBreak:'clone',
+            padding:'2px 10px 3px',
+            borderRadius:'3px',
+            borderLeft:'3px solid rgba(236,59,121,0.7)',
+          }}>
+            Tecnología de última generación al servicio de tu salud y tu sonrisa. Cada tratamiento, diseñado a medida.
+          </p>
+
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onMouseEnter={() => setCtaHov(true)}
+            onMouseLeave={() => setCtaHov(false)}
+            style={{
+              display:'inline-flex', alignItems:'center', gap:'10px', alignSelf:'flex-start',
+              background: ctaHov ? 'linear-gradient(135deg,#EC3B79,#9B59B6)' : 'white',
+              borderRadius:'999px', padding:'14px 32px',
+              fontSize:'11px', fontWeight:800, letterSpacing:'0.2em',
+              color: ctaHov ? 'white' : '#EC3B79',
+              textTransform:'uppercase', textDecoration:'none',
+              boxShadow: ctaHov ? '0 12px 40px rgba(236,59,121,0.5)' : '0 8px 32px rgba(0,0,0,0.3)',
+              transition:'all 0.3s ease',
+            }}
+          >
+            PEDIR TURNO
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M2 6.5h9M8 3l4 3.5L8 10" stroke={ctaHov ? 'white' : '#EC3B79'} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </a>
         </div>
 
         {/* Right column */}

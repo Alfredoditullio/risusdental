@@ -9,8 +9,8 @@ interface Props {
   onDone?: () => void
 }
 
-const COLS   = 6,  ROWS  = 5
-const IMG_W  = 900, IMG_H = 675
+const COLS   = 6,  ROWS  = 3
+const IMG_W  = 882, IMG_H = 390
 const CELL_W = IMG_W / COLS
 const CELL_H = IMG_H / ROWS
 const TOTAL  = COLS * ROWS
@@ -97,7 +97,7 @@ export function LipsShatterIntro({ active, onDone }: Props) {
                 top:    row * CELL_H,
                 width:  CELL_W,
                 height: CELL_H,
-                backgroundImage:    'url(/labioss.webp)',
+                backgroundImage:    'url(/boca.png)',
                 backgroundSize:     `${IMG_W}px ${IMG_H}px`,
                 backgroundPosition: `-${col * CELL_W}px -${row * CELL_H}px`,
                 backgroundRepeat:   'no-repeat',

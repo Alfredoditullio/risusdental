@@ -15,15 +15,18 @@ import { ToothParticles } from './ToothParticles'
 import { GallerySlide } from './GallerySlide'
 import { ServiciosSlide } from './ServiciosSlide'
 import { ContactoSlide } from './ContactoSlide'
+import { ComunidadSlide } from './ComunidadSlide'
 import { LipsShatterIntro } from './LipsShatterIntro'
 import { NosotrosSlide } from './NosotrosSlide'
 import { useSlider } from '../hooks/useSlider'
 import { useMouse } from '../hooks/useMouse'
+import { useIsMobile } from '../hooks/useIsMobile'
 import { slides } from '../data/slides'
 
 export function Slider() {
   const { current, direction, total, goTo, next, prev } = useSlider()
-  const mouse = useMouse(0.06)
+  const isMobile = useIsMobile()
+  const mouse = useMouse(isMobile ? 0 : 0.06)
   const bgRef = useRef<HTMLDivElement>(null)
   const prevSlide = useRef(0)
 
@@ -90,41 +93,45 @@ export function Slider() {
         }}
       />
 
-      {/* Fluid blob layer — transparent Canvas 2D, blobs follow the cursor */}
-      <div className="absolute inset-0 z-[2] pointer-events-none">
-        <FluidCanvas />
-      </div>
+      {/* Fluid blob layer — desktop only (RAF + canvas = battery drain on mobile) */}
+      {!isMobile && (
+        <div className="absolute inset-0 z-[2] pointer-events-none">
+          <FluidCanvas />
+        </div>
+      )}
 
-      {/* 3D Canvas — centered sculpture, fully transparent background */}
-      <div className="absolute inset-0 z-[3]">
-        <Canvas
-          camera={{ position: [0, 0, 5], fov: 45 }}
-          dpr={[1, window.innerWidth < 768 ? 1 : 1.5]}
-          gl={{ antialias: false, alpha: true, premultipliedAlpha: false, powerPreference: 'high-performance' }}
-          style={{ background: 'transparent' }}
-          onCreated={({ gl }) => { gl.setClearColor(0x000000, 0) }}
-        >
-          <Scene currentSlide={current} direction={direction} mouse={mouse} />
-        </Canvas>
-      </div>
+      {/* 3D Canvas — desktop only (WebGL = GPU drain on mobile) */}
+      {!isMobile && (
+        <div className="absolute inset-0 z-[3]">
+          <Canvas
+            camera={{ position: [0, 0, 5], fov: 45 }}
+            dpr={1}
+            gl={{ antialias: false, alpha: true, premultipliedAlpha: false, powerPreference: 'default' }}
+            style={{ background: 'transparent' }}
+            onCreated={({ gl }) => { gl.setClearColor(0x000000, 0) }}
+          >
+            <Scene currentSlide={current} direction={direction} mouse={mouse} />
+          </Canvas>
+        </div>
+      )}
 
-      {/* Hearts burst from behind the tooth on hover — z-4 (below the tooth at z-5) */}
-      <HeartParticles active={current === 0} />
+      {/* Hearts — desktop only */}
+      {!isMobile && <HeartParticles active={current === 0} />}
 
       {/* Real tooth video — slide 1 only, fades in/out with GSAP — z-5 */}
       <ToothVideo active={current === 0} parallax={toothParallax} />
 
-      {/* Teeth burst from behind Rodrigo's photo on hover — z-4 (disabled: NosotrosSlide handles its own layout) */}
-      <ToothParticles active={false} />
+      {/* Teeth burst — desktop only */}
+      {!isMobile && <ToothParticles active={current === 1} />}
 
-      {/* Lips shatter intro — Nosotros only, z-20, plays before content appears */}
-      <LipsShatterIntro active={current === 1} />
+      {/* Lips shatter intro — desktop only (30 divs animando = lag en mobile) */}
+      {!isMobile && <LipsShatterIntro active={current === 1} />}
 
       {/* Rodrigo circular photo — disabled: NosotrosSlide handles its own photo */}
       <RodrigoPhoto active={false} parallax={photoParallax} matricula={slides[1].matricula} />
 
-      {/* Floating bubbles/orbs */}
-      <Bubbles mouse={mouse} accentColor={slides[current].accentColor} />
+      {/* Floating bubbles/orbs — desktop only */}
+      {!isMobile && <Bubbles mouse={mouse} accentColor={slides[current].accentColor} />}
 
       {/* HTML overlays per slide */}
       {slides.map((slide, i) => (
@@ -136,14 +143,16 @@ export function Slider() {
               ? <ContactoSlide key={slide.id} active={i === current} />
               : slide.label === 'Nosotros'
                 ? <NosotrosSlide key={slide.id} active={i === current} />
-                : <SlideContent  key={slide.id} slide={slide} active={i === current} index={i} />
+                : slide.label === 'Comunidad'
+                  ? <ComunidadSlide key={slide.id} active={i === current} />
+                  : <SlideContent  key={slide.id} slide={slide} active={i === current} index={i} />
       ))}
 
       {/* Navigation */}
       <Nav onNavigate={(i) => goTo(i)} />
 
-      {/* Custom bubble cursor (fixed, so it escapes the overflow:hidden) */}
-      <BubbleCursor />
+      {/* Custom bubble cursor — desktop only (useless + battery drain on touch) */}
+      {!isMobile && <BubbleCursor />}
 
 
       {/* Bottom bar: counter + nav arrows */}
@@ -154,7 +163,7 @@ export function Slider() {
         <div className="flex items-center gap-4">
           <button
             onClick={prev}
-            className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white/60 hover:text-white hover:border-white transition-all"
+            className="hidden md:flex w-10 h-10 rounded-full border border-white/30 items-center justify-center text-white/60 hover:text-white hover:border-white transition-all"
             aria-label="Previous slide"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,7 +187,7 @@ export function Slider() {
 
           <button
             onClick={next}
-            className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white/60 hover:text-white hover:border-white transition-all"
+            className="hidden md:flex w-10 h-10 rounded-full border border-white/30 items-center justify-center text-white/60 hover:text-white hover:border-white transition-all"
             aria-label="Next slide"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

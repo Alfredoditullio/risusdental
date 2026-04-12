@@ -235,9 +235,14 @@ export function SlideContent({ slide, active, index }: SlideContentProps) {
           ))}
         </div>
         <div ref={infoRef}
-             className="absolute left-6 md:left-12 lg:left-16 bottom-[10%] md:bottom-[12%] flex flex-col gap-4"
+             className="absolute left-6 md:left-12 lg:left-16 bottom-[10%] md:bottom-[12%] flex flex-col gap-5"
              style={{ opacity: 0 }}>
-          <p className="max-w-[260px] md:max-w-xs font-display text-white/70 text-[10px] md:text-xs uppercase tracking-[0.2em] leading-relaxed">
+          <p className="font-display font-semibold text-white/90 leading-snug"
+             style={{
+               fontSize: 'clamp(1.05rem, 1.8vw, 1.55rem)',
+               whiteSpace: 'pre-line',
+               textShadow: '0 2px 16px rgba(0,0,0,0.5)',
+             }}>
             {slide.subtitle}
           </p>
           <div className="pointer-events-auto"><CTAButton text={slide.ctaText} /></div>

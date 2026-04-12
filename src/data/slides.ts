@@ -28,7 +28,7 @@ export const slides: SlideData[] = [
     headlineTop: 'ODONTOLOGIA',
     headlineMiddle: 'CON',
     headlineBottom: 'AMOR',
-    subtitle: 'Odontologia inclusiva en el corazon de Buenos Aires. Tu orgullo, nuestra pasion.',
+    subtitle: 'En niños, adolescentes y adultos\nAcompaño el desarrollo de tu sonrisa',
     accentColor: '#EC3B79',
     bgGradient:
       'linear-gradient(135deg, #1E8ED0 0%, #9B59B6 20%, #EC3B79 45%, #FAB0EA 65%, #F39C12 85%, #E6F020 100%)',
@@ -40,7 +40,7 @@ export const slides: SlideData[] = [
     label: 'Nosotros',
     headlineTop: 'RODRIGO',
     headlineBottom: 'MELO',
-    subtitle: 'Odontólogo General',
+    subtitle: 'Esp. en ortodoncia y estética facial',
     bio: 'Desde los 12 años supo que quería ser odontólogo. Criado en Zárate, se formó en la UBA y convirtió esa vocación temprana en una carrera construida con estudio, pasión y mucha sensibilidad. Realizó posgrados en Ortodoncia y en Estética Facial, y desarrolló Go Smile, su propia línea de alineadores. Trabaja con brackets convencionales, autoligado y tecnología de avanzada — siempre al servicio de una sonrisa que sea tuya de verdad.\n\nHoy es docente de Clínica en la UBA y en la Universidad Interamericana, porque cree que enseñar es también una forma de cuidar. En su tiempo libre lo encontrás sobre patines. Cree en las energías, en los vínculos y en que la salud empieza por sentirse escuchado. Su prioridad no es el diente: es la persona que lo tiene.',
     accentColor: '#1E8ED0',
     bgGradient:
@@ -77,6 +77,18 @@ export const slides: SlideData[] = [
   },
   {
     id: 5,
+    label: 'Comunidad',
+    headlineTop: 'LO DICEN',
+    headlineBottom: 'ELLOS',
+    subtitle: 'Reseñas reales, reels y la comunidad que nos eligió.',
+    accentColor: '#9B59B6',
+    bgGradient:
+      'linear-gradient(135deg, #1a0533 0%, #2d1b69 25%, #1E8ED0 55%, #0f2a4a 80%, #1a0533 100%)',
+    shape: 'none',
+    ctaText: 'VER COMUNIDAD',
+  },
+  {
+    id: 6,
     label: 'Contacto',
     headlineTop: 'TE',
     headlineBottom: 'ESPERAMOS',

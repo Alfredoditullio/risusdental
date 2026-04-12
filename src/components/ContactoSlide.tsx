@@ -1,9 +1,11 @@
 /**
  * ContactoSlide — Mona Lisa + labios animados + mapa radar
  */
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import gsap from 'gsap'
 import { WHATSAPP_URL } from '../data/slides'
+import { GradientSocials } from './GradientSocials'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 interface Props { active: boolean }
 
@@ -11,12 +13,14 @@ const MAPS_EMBED = 'https://maps.google.com/maps?q=Paraguay+2475,+Buenos+Aires,+
 const MAPS_LINK  = 'https://maps.google.com/maps?q=Paraguay+2475,+Buenos+Aires,+Argentina'
 
 export function ContactoSlide({ active }: Props) {
+  const isMobile = useIsMobile()
   const monaRef  = useRef<HTMLImageElement>(null)
   const lipsRef  = useRef<HTMLImageElement>(null)
   const textRef  = useRef<HTMLDivElement>(null)
   const mapRef   = useRef<HTMLDivElement>(null)
   const floatTl  = useRef<gsap.core.Timeline | null>(null)
   const entryTl  = useRef<gsap.core.Timeline | null>(null)
+  const [ctaHov, setCtaHov] = useState(false)
 
   useEffect(() => {
     entryTl.current?.kill()
@@ -65,6 +69,73 @@ export function ContactoSlide({ active }: Props) {
     return () => { entryTl.current?.kill(); floatTl.current?.kill() }
   }, [active])
 
+  // ── Mobile layout ──────────────────────────────────────────────────────────
+  if (isMobile) {
+    return (
+      <div className={`absolute inset-0 z-10 pointer-events-none ${active ? 'visible' : 'invisible'}`}>
+        <style>{`
+          @keyframes ring-out-m { 0% { transform: translate(-50%,-50%) scale(0.2); opacity: 0.9; } 100% { transform: translate(-50%,-50%) scale(3.8); opacity: 0; } }
+          @keyframes radar-spin-m { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+          @keyframes dot-pulse-m { 0%, 100% { box-shadow: 0 0 0 0 rgba(236,59,121,0.8); } 50% { box-shadow: 0 0 0 8px rgba(236,59,121,0); } }
+        `}</style>
+        <div style={{
+          position: 'absolute', inset: 0,
+          display: 'flex', flexDirection: 'column',
+          padding: '68px 20px 76px',
+          gap: 'clamp(12px,2.5vh,20px)',
+          pointerEvents: 'auto',
+          overflowY: 'auto',
+          opacity: active ? 1 : 0,
+          transition: 'opacity 0.45s ease',
+          WebkitOverflowScrolling: 'touch' as any,
+        }}>
+          {/* Eyebrow */}
+          <p style={{ fontFamily: 'inherit', fontSize: '9px', fontWeight: 600, letterSpacing: '0.38em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', margin: 0 }}>
+            Risus Dental · Recoleta, Buenos Aires
+          </p>
+          {/* Headline */}
+          <h2 style={{ fontFamily: 'inherit', fontSize: 'clamp(2.4rem,11vw,3.2rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.04em', lineHeight: 0.88, margin: 0 }}>
+            TE<br/>ESPERAMOS
+          </h2>
+          {/* Horario */}
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '999px', padding: '9px 18px', alignSelf: 'flex-start' }}>
+            <span style={{ fontSize: '16px', lineHeight: 1, flexShrink: 0 }}>🕐</span>
+            <p style={{ fontFamily: 'inherit', fontSize: '14px', fontWeight: 700, color: 'white', margin: 0, letterSpacing: '0.04em' }}>Lun–Vie · 9 a 21 hs</p>
+          </div>
+          {/* Map */}
+          <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', width: '100%', height: 180, boxShadow: '0 12px 40px rgba(0,0,0,0.5), 0 0 0 1.5px rgba(255,255,255,0.14)', flexShrink: 0 }}>
+            <iframe src={MAPS_EMBED} title="Ubicación Risus Dental" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', filter: 'saturate(0.7) contrast(1.05) brightness(0.9)' }} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+            {/* Radar sweep */}
+            <div style={{ position: 'absolute', inset: 0, background: 'conic-gradient(from 0deg, transparent 0deg, rgba(236,59,121,0.18) 40deg, transparent 41deg)', animation: active ? 'radar-spin-m 3.5s linear infinite' : 'none', pointerEvents: 'none', mixBlendMode: 'screen' }} />
+            {[0, 0.8, 1.6].map(delay => (
+              <div key={delay} style={{ position: 'absolute', left: '50%', top: '47%', width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(236,59,121,0.7)', animation: active ? `ring-out-m 2.4s ease-out ${delay}s infinite` : 'none', pointerEvents: 'none' }} />
+            ))}
+            <div style={{ position: 'absolute', left: '50%', top: '47%', transform: 'translate(-50%,-50%)', width: 10, height: 10, borderRadius: '50%', background: '#EC3B79', border: '2px solid white', animation: active ? 'dot-pulse-m 1.8s ease-in-out infinite' : 'none', zIndex: 2, pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.72)', padding: '8px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 3 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#EC3B79', flexShrink: 0, boxShadow: '0 0 5px #EC3B79' }} />
+                <span style={{ fontFamily: 'inherit', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>Paraguay 2475, Recoleta · CABA</span>
+              </div>
+              <a href={MAPS_LINK} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'inherit', fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#EC3B79', textDecoration: 'none', flexShrink: 0 }}>Ver Maps →</a>
+            </div>
+          </div>
+          {/* CTA */}
+          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, alignSelf: 'flex-start', background: 'white', borderRadius: '999px', padding: '14px 30px', fontSize: '12px', fontWeight: 800, letterSpacing: '0.18em', color: '#EC3B79', textTransform: 'uppercase', textDecoration: 'none', boxShadow: '0 8px 28px rgba(0,0,0,0.3)' }}>
+            PEDIR TURNO
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M2 6.5h9M8 3l4 3.5L8 10" stroke="#EC3B79" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </a>
+          {/* Socials */}
+          <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 4 }}>
+            <GradientSocials />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Desktop layout ──────────────────────────────────────────────────────────
   return (
     <>
       {/* ── CSS keyframes para el radar ─────────────────────────── */}
@@ -106,17 +177,26 @@ export function ContactoSlide({ active }: Props) {
             TE<br/>ESPERAMOS
           </h2>
 
-          {/* Info compacta */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {[
-              { icon: '🕐', value: 'Lun–Vie 9–20 hs · Sáb 9–14 hs' },
-              { icon: '💳', value: 'Obras sociales y prepagas' },
-            ].map(item => (
-              <div key={item.value} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '15px', lineHeight: 1, flexShrink: 0 }}>{item.icon}</span>
-                <p style={{ fontFamily: 'inherit', fontSize: 'clamp(11px,1.1vw,14px)', color: 'rgba(255,255,255,0.78)', margin: 0, lineHeight: 1.4 }}>{item.value}</p>
-              </div>
-            ))}
+          {/* Horario */}
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '12px',
+            background: 'rgba(0,0,0,0.35)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            borderRadius: '999px',
+            padding: '10px 20px',
+            alignSelf: 'flex-start',
+          }}>
+            <span style={{ fontSize: '18px', lineHeight: 1, flexShrink: 0 }}>🕐</span>
+            <p style={{
+              fontFamily: 'inherit',
+              fontSize: 'clamp(15px, 1.4vw, 18px)',
+              fontWeight: 700,
+              color: 'white',
+              margin: 0,
+              letterSpacing: '0.04em',
+            }}>
+              Lun–Vie · 9 a 21 hs
+            </p>
           </div>
 
           {/* ── Fancy map card ─────────────────────────────────────── */}
@@ -150,7 +230,7 @@ export function ContactoSlide({ active }: Props) {
             <div style={{
               position: 'absolute', inset: 0,
               background: 'conic-gradient(from 0deg, transparent 0deg, rgba(236,59,121,0.18) 40deg, transparent 41deg)',
-              animation: 'radar-spin 3.5s linear infinite',
+              animation: active ? 'radar-spin 3.5s linear infinite' : 'none',
               pointerEvents: 'none',
               mixBlendMode: 'screen',
             }} />
@@ -163,7 +243,7 @@ export function ContactoSlide({ active }: Props) {
                 width: 24, height: 24,
                 borderRadius: '50%',
                 border: '2px solid rgba(236,59,121,0.7)',
-                animation: `ring-out 2.4s ease-out ${delay}s infinite`,
+                animation: active ? `ring-out 2.4s ease-out ${delay}s infinite` : 'none',
                 pointerEvents: 'none',
               }} />
             ))}
@@ -178,7 +258,7 @@ export function ContactoSlide({ active }: Props) {
               background: '#EC3B79',
               border: '2.5px solid white',
               boxShadow: '0 0 0 0 rgba(236,59,121,0.8)',
-              animation: 'dot-pulse 1.8s ease-in-out infinite',
+              animation: active ? 'dot-pulse 1.8s ease-in-out infinite' : 'none',
               zIndex: 2,
               pointerEvents: 'none',
             }} />
@@ -186,9 +266,7 @@ export function ContactoSlide({ active }: Props) {
             {/* Bottom glass bar */}
             <div style={{
               position: 'absolute', bottom: 0, left: 0, right: 0,
-              background: 'rgba(0,0,0,0.58)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
+              background: 'rgba(0,0,0,0.72)',
               padding: '9px 14px',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               zIndex: 3,
@@ -224,20 +302,37 @@ export function ContactoSlide({ active }: Props) {
             href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
+            onMouseEnter={() => setCtaHov(true)}
+            onMouseLeave={() => setCtaHov(false)}
             style={{
-              display: 'inline-flex', alignItems: 'center', gap: '10px', alignSelf: 'flex-start',
-              background: 'white',
-              borderRadius: '999px', padding: '14px 32px',
-              fontSize: '11px', fontWeight: 800, letterSpacing: '0.2em',
-              color: '#EC3B79', textTransform: 'uppercase', textDecoration: 'none',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+              display: 'inline-flex', alignItems: 'center', gap: '12px', alignSelf: 'flex-start',
+              background: ctaHov ? 'linear-gradient(135deg,#EC3B79,#9B59B6)' : 'white',
+              borderRadius: '999px', padding: '16px 36px',
+              fontSize: '13px', fontWeight: 800, letterSpacing: '0.18em',
+              color: ctaHov ? 'white' : '#EC3B79',
+              textTransform: 'uppercase', textDecoration: 'none',
+              boxShadow: ctaHov ? '0 12px 40px rgba(236,59,121,0.55)' : '0 8px 32px rgba(0,0,0,0.3)',
+              transition: 'all 0.3s ease',
             }}
           >
             PEDIR TURNO
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-              <path d="M2 6.5h9M8 3l4 3.5L8 10" stroke="#EC3B79" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg width="14" height="14" viewBox="0 0 13 13" fill="none">
+              <path d="M2 6.5h9M8 3l4 3.5L8 10" stroke={ctaHov ? 'white' : '#EC3B79'} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </a>
+        </div>
+
+        {/* ── BOTTOM CENTER: Social pills ─────────────────────────── */}
+        <div style={{
+          position: 'absolute',
+          bottom: 'clamp(64px, 8vh, 88px)',
+          left: 0, right: 0,
+          display: 'flex',
+          justifyContent: 'center',
+          pointerEvents: 'auto',
+          zIndex: 60,
+        }}>
+          <GradientSocials />
         </div>
 
         {/* ── RIGHT: Mona Lisa + lips ──────────────────────────────── */}

@@ -8,7 +8,8 @@ const NAV_LINKS = [
   { label: 'NOSOTROS',  idx: 1 },
   { label: 'SERVICIOS', idx: 2 },
   { label: 'GALERÍA',   idx: 3 },
-  { label: 'CONTACTO',  idx: 4 },
+  { label: 'COMUNIDAD', idx: 4 },
+  { label: 'CONTACTO',  idx: 5 },
 ]
 
 export function Nav({ onNavigate }: NavProps) {
@@ -35,9 +36,21 @@ export function Nav({ onNavigate }: NavProps) {
             key={label}
             onClick={() => onNavigate(idx)}
             className="font-display font-bold hidden md:block"
-            style={{ fontSize: '0.95rem', letterSpacing: '0.16em', color: 'rgba(255,255,255,0.75)', transition: 'color 0.2s' }}
-            onMouseEnter={e => (e.currentTarget.style.color = 'white')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.75)')}
+            style={{
+              fontSize: '0.9rem', letterSpacing: '0.16em',
+              color: 'rgba(255,255,255,0.92)',
+              transition: 'color 0.2s',
+              background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+              textShadow: '0 1px 4px rgba(0,0,0,0.7), 0 0 20px rgba(0,0,0,0.5)',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.color = 'white'
+              e.currentTarget.style.textShadow = '0 1px 8px rgba(0,0,0,0.9), 0 0 24px rgba(236,59,121,0.5)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.color = 'rgba(255,255,255,0.92)'
+              e.currentTarget.style.textShadow = '0 1px 4px rgba(0,0,0,0.7), 0 0 20px rgba(0,0,0,0.5)'
+            }}
           >
             {label}
           </button>

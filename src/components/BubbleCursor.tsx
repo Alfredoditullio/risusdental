@@ -37,12 +37,12 @@ export function BubbleCursor() {
 
     let animId: number
     let lastDraw = 0
-    const TARGET_MS = 1000 / 40   // 40fps — smooth enough for cursor lag
+    const TARGET_MS = 1000 / 30   // 30fps — smooth enough for cursor lag
 
     ;(function loop(now: number) {
       animId = requestAnimationFrame(loop)
 
-      if (now - lastDraw < TARGET_MS) return
+      if (document.hidden || now - lastDraw < TARGET_MS) return
       lastDraw = now
 
       // Dot follows mouse tightly

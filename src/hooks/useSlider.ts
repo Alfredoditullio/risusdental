@@ -49,10 +49,26 @@ export function useSlider() {
 
   // Touch
   useEffect(() => {
+    // Check if an element is inside a scrollable container (to avoid stealing scroll events)
+    const isInsideScrollable = (el: EventTarget | null): boolean => {
+      let node = el as HTMLElement | null
+      while (node && node !== document.body) {
+        const style = window.getComputedStyle(node)
+        const overflowY = style.overflowY
+        if ((overflowY === 'auto' || overflowY === 'scroll') && node.scrollHeight > node.clientHeight) {
+          return true
+        }
+        node = node.parentElement
+      }
+      return false
+    }
+
     const handleTouchStart = (e: TouchEvent) => {
       touchStartY.current = e.touches[0].clientY
     }
     const handleTouchEnd = (e: TouchEvent) => {
+      // Don't navigate slides when the user is scrolling inside a scrollable container
+      if (isInsideScrollable(e.target)) return
       const delta = touchStartY.current - e.changedTouches[0].clientY
       if (Math.abs(delta) > 50) {
         if (delta > 0) next()

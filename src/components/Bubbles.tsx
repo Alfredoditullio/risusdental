@@ -20,12 +20,10 @@ interface Bubble {
 export function Bubbles({ mouse, accentColor }: BubblesProps) {
   const bubbles = useMemo<Bubble[]>(
     () => [
-      { id: 1, size: 180, x: 75, y: 25, parallaxFactor: 0.8, opacity: 0.15, blur: 40, delay: 0 },
-      { id: 2, size: 120, x: 20, y: 65, parallaxFactor: 0.5, opacity: 0.12, blur: 30, delay: 2 },
-      { id: 3, size: 90, x: 85, y: 70, parallaxFactor: 1.2, opacity: 0.18, blur: 20, delay: 4 },
-      { id: 4, size: 60, x: 60, y: 15, parallaxFactor: 0.3, opacity: 0.1, blur: 25, delay: 1 },
-      { id: 5, size: 200, x: 40, y: 80, parallaxFactor: 0.6, opacity: 0.08, blur: 50, delay: 3 },
-      { id: 6, size: 140, x: 10, y: 30, parallaxFactor: 1.0, opacity: 0.1, blur: 35, delay: 5 },
+      { id: 1, size: 180, x: 75, y: 25, parallaxFactor: 0.8, opacity: 0.12, blur: 18, delay: 0 },
+      { id: 2, size: 120, x: 20, y: 65, parallaxFactor: 0.5, opacity: 0.10, blur: 14, delay: 2 },
+      { id: 3, size: 90, x: 85, y: 70, parallaxFactor: 1.2, opacity: 0.14, blur: 10, delay: 4 },
+      { id: 4, size: 200, x: 40, y: 80, parallaxFactor: 0.6, opacity: 0.06, blur: 22, delay: 3 },
     ],
     [],
   )

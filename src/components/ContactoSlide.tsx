@@ -23,6 +23,7 @@ export function ContactoSlide({ active }: Props) {
   const [ctaHov, setCtaHov] = useState(false)
 
   useEffect(() => {
+    if (isMobile) return   // mobile usa CSS transitions, no GSAP refs disponibles
     entryTl.current?.kill()
     floatTl.current?.kill()
 
@@ -67,7 +68,7 @@ export function ContactoSlide({ active }: Props) {
     }
 
     return () => { entryTl.current?.kill(); floatTl.current?.kill() }
-  }, [active])
+  }, [active, isMobile])
 
   // ── Mobile layout ──────────────────────────────────────────────────────────
   if (isMobile) {

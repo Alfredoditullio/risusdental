@@ -104,6 +104,7 @@ export function ComunidadSlide({ active }: Props) {
   const entryTl      = useRef<gsap.core.Timeline | null>(null)
 
   useEffect(() => {
+    if (isMobile) return   // mobile usa CSS transitions
     entryTl.current?.kill()
     const tl = gsap.timeline()
     entryTl.current = tl
@@ -115,7 +116,7 @@ export function ComunidadSlide({ active }: Props) {
       tl.to(containerRef.current, { opacity: 0, duration: 0.22, ease: 'power2.in' })
     }
     return () => { entryTl.current?.kill() }
-  }, [active])
+  }, [active, isMobile])
 
   const marqueeState = active ? 'running' : 'paused'
 

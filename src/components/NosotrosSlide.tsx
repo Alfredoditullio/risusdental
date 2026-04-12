@@ -51,6 +51,7 @@ export function NosotrosSlide({ active }: Props) {
   const entryTl    = useRef<gsap.core.Timeline | null>(null)
 
   useEffect(() => {
+    if (isMobile) return   // mobile usa CSS transitions, no GSAP refs disponibles
     entryTl.current?.kill()
     const tl = gsap.timeline()
     entryTl.current = tl
@@ -100,7 +101,7 @@ export function NosotrosSlide({ active }: Props) {
     }
 
     return () => { entryTl.current?.kill() }
-  }, [active])
+  }, [active, isMobile])
 
   // ── Mobile layout ──────────────────────────────────────────────────────────
   if (isMobile) {

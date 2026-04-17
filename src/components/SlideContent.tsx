@@ -16,6 +16,7 @@ import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { SlideData } from '../data/slides'
 import { CTAButton } from './CTAButton'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 interface SlideContentProps {
   slide: SlideData
@@ -31,6 +32,7 @@ export function SlideContent({ slide, active, index }: SlideContentProps) {
   const bioRef    = useRef<HTMLDivElement>(null)
   const infoRef   = useRef<HTMLDivElement>(null)
   const tlRef     = useRef<gsap.core.Timeline | null>(null)
+  const isMobile  = useIsMobile()
 
   const threeLines = !!slide.headlineMiddle
   const hasPhoto   = !!slide.photo
@@ -137,7 +139,7 @@ export function SlideContent({ slide, active, index }: SlideContentProps) {
                                    duration: 0.35, ease: 'power3.in' }, 0.08)
       if (info)   tl.to(info,   { y: -20, opacity: 0, duration: 0.22, ease: 'power2.in' }, 0)
     }
-  }, [active, threeLines, hasPhoto, isEven])
+  }, [active, threeLines, hasPhoto, isEven, isMobile])
 
   // ── Photo-left / text-right ─────────────────────────────────────────────
   if (hasPhoto) {
@@ -216,6 +218,59 @@ export function SlideContent({ slide, active, index }: SlideContentProps) {
 
   // ── 3-line stacked ──────────────────────────────────────────────────────
   if (threeLines) {
+
+    // ── Mobile hero layout ─────────────────────────────────────────────────
+    // No tooth video on mobile (gated in Slider.tsx), so headline takes full width.
+    // Headline sits at top-[16%], CTA sits above the fixed bottom nav bar (~80px).
+    if (isMobile) {
+      return (
+        <div ref={containerRef}
+             className={`absolute inset-0 z-10 pointer-events-none ${active ? 'visible' : 'invisible'}`}>
+
+          {/* 3-line headline — left-aligned, upper third */}
+          <div className="absolute top-[16%] left-0 right-0 flex flex-col items-start pl-6 gap-0">
+            {[
+              { ref: topRef,    text: slide.headlineTop    },
+              { ref: midRef,    text: slide.headlineMiddle },
+              { ref: bottomRef, text: slide.headlineBottom },
+            ].map(({ ref, text }, i) => (
+              <div key={i} ref={ref} style={{ opacity: 0 }}>
+                <h2
+                  className="font-display font-bold text-white leading-[0.88] tracking-tight select-none"
+                  style={{
+                    fontSize: 'clamp(2.2rem, 14vw, 3.4rem)',
+                    textShadow: '0 4px 40px rgba(0,0,0,0.22)',
+                  }}
+                >
+                  {text}
+                </h2>
+              </div>
+            ))}
+          </div>
+
+          {/* Subtitle + CTA — above the fixed bottom nav bar */}
+          <div
+            ref={infoRef}
+            className="absolute left-6 right-6 flex flex-col gap-4"
+            style={{ bottom: '88px', opacity: 0 }}
+          >
+            <p
+              className="font-display font-semibold text-white/90 leading-snug"
+              style={{
+                fontSize: '1rem',
+                whiteSpace: 'pre-line',
+                textShadow: '0 2px 16px rgba(0,0,0,0.5)',
+              }}
+            >
+              {slide.subtitle}
+            </p>
+            <div className="pointer-events-auto"><CTAButton text={slide.ctaText} /></div>
+          </div>
+        </div>
+      )
+    }
+
+    // ── Desktop hero layout ────────────────────────────────────────────────
     return (
       <div ref={containerRef}
            className={`absolute inset-0 z-10 pointer-events-none ${active ? 'visible' : 'invisible'}`}>

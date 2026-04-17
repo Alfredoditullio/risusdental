@@ -118,8 +118,8 @@ export function Slider() {
       {/* Hearts — desktop only */}
       {!isMobile && <HeartParticles active={current === 0} />}
 
-      {/* Real tooth video — slide 1 only, fades in/out with GSAP — z-5 */}
-      <ToothVideo active={current === 0} parallax={toothParallax} />
+      {/* Real tooth video — slide 1 only, desktop only (WebM alpha = black rect on iOS Safari) */}
+      {!isMobile && <ToothVideo active={current === 0} parallax={toothParallax} />}
 
       {/* Teeth burst — desktop only */}
       {!isMobile && <ToothParticles active={current === 1} />}

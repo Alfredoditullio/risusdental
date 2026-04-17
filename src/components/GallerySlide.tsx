@@ -4,7 +4,7 @@
  * Click → lightbox con foto + testimonio.
  * Mobile → scrollable 2-col grid + lightbox vertical.
  */
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useIsMobile } from '../hooks/useIsMobile'
 
@@ -81,6 +81,9 @@ export function GallerySlide({ active }: Props) {
   const isMobile = useIsMobile()
   const [hovered,  setHovered]  = useState<number | null>(null)
   const [selected, setSelected] = useState<number | null>(null)
+  // Swipe vs tap detection for carousel
+  const touchStartX = useRef(0)
+  const didSwipe    = useRef(false)
 
   const handleClose = useCallback(() => setSelected(null), [])
 
@@ -97,16 +100,20 @@ export function GallerySlide({ active }: Props) {
   if (isMobile) {
     return (
       <div className={`absolute inset-0 z-10 pointer-events-none ${active ? 'visible' : 'invisible'}`}>
+        <style>{`.gallery-carousel::-webkit-scrollbar { display: none }`}</style>
+
         <div style={{
           position: 'absolute', inset: 0,
           display: 'flex', flexDirection: 'column',
-          padding: '68px 14px 76px',
-          gap: 10,
+          paddingTop: '68px',
+          paddingBottom: '80px',
+          gap: 16,
           pointerEvents: 'auto',
           opacity: active ? 1 : 0,
           transition: 'opacity 0.45s ease',
         }}>
-          <div style={{ textAlign: 'center', flexShrink: 0 }}>
+          {/* Headline */}
+          <div style={{ padding: '0 20px', flexShrink: 0 }}>
             <p style={{ fontFamily: 'inherit', fontSize: '9px', fontWeight: 600, letterSpacing: '0.38em', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', margin: '0 0 6px' }}>
               Risus Dental · Galería
             </p>
@@ -115,93 +122,163 @@ export function GallerySlide({ active }: Props) {
             </h2>
           </div>
 
-          {/* Scrollable 2-col grid */}
-          <div style={{
-            flex: 1, overflowY: 'auto',
-            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8,
-            WebkitOverflowScrolling: 'touch',
-          }}>
+          {/* Snap carousel — horizontal swipe, one card at a time */}
+          <div
+            className="gallery-carousel"
+            style={{
+              flex: 1,
+              display: 'flex',
+              overflowX: 'scroll',
+              scrollSnapType: 'x mandatory',
+              gap: 12,
+              paddingLeft: 20,
+              paddingRight: 20,
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+            }}
+          >
             {ITEMS.map((item, i) => (
               <div
                 key={item.src}
+                onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; didSwipe.current = false }}
+                onTouchMove={(e)  => { if (Math.abs(e.touches[0].clientX - touchStartX.current) > 8) didSwipe.current = true }}
+                onTouchEnd={() => { if (!didSwipe.current) setSelected(i) }}
                 onClick={() => setSelected(i)}
                 style={{
-                  borderRadius: 12, overflow: 'hidden', cursor: 'pointer',
-                  aspectRatio: '3/4', position: 'relative',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                  flexShrink: 0,
+                  width: 'calc(100vw - 64px)',
+                  scrollSnapAlign: 'center',
+                  borderRadius: 18,
+                  overflow: 'hidden',
+                  position: 'relative',
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.45)',
                 }}
               >
-                <img src={item.src} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }} />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)' }} />
-                <div style={{ position: 'absolute', bottom: 8, left: 8, right: 8 }}>
-                  <p style={{ fontFamily: 'inherit', fontSize: '10px', fontWeight: 800, color: 'white', margin: '0 0 2px', lineHeight: 1.1 }}>{item.name}</p>
-                  <p style={{ fontFamily: 'inherit', fontSize: '8px', fontWeight: 600, color: 'rgba(236,59,121,0.9)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{item.tag}</p>
+                <img
+                  src={item.src} alt={item.name}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
+                />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, transparent 55%)' }} />
+                {/* Counter badge — top right */}
+                <div style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(0,0,0,0.52)', borderRadius: '999px', padding: '3px 10px' }}>
+                  <span style={{ fontFamily: 'inherit', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>
+                    {String(i + 1).padStart(2, '0')} / {String(TOTAL).padStart(2, '0')}
+                  </span>
+                </div>
+                {/* Name + tag — bottom */}
+                <div style={{ position: 'absolute', bottom: 14, left: 16, right: 16 }}>
+                  <p style={{ fontFamily: 'inherit', fontSize: '14px', fontWeight: 800, color: 'white', margin: '0 0 4px', lineHeight: 1.1 }}>{item.name}</p>
+                  <p style={{ fontFamily: 'inherit', fontSize: '9px', fontWeight: 700, color: 'rgba(236,59,121,0.95)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{item.tag}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Mobile Lightbox */}
+        {/* Mobile Lightbox — modal flotante, fondo visible alrededor */}
         <AnimatePresence>
           {selected !== null && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.18 }}
               onClick={handleClose}
               style={{
                 position: 'absolute', inset: 0,
-                background: 'rgba(0,0,0,0.92)',
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                background: 'rgba(0,0,0,0.55)',
+                backdropFilter: 'blur(4px)',
+                WebkitBackdropFilter: 'blur(4px)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
                 zIndex: 100, pointerEvents: 'auto',
+                padding: '0 16px',
               }}
             >
+              {/* Card flotante — NO full screen */}
               <motion.div
-                initial={{ y: 40, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: 20, opacity: 0 }}
-                transition={{ duration: 0.24, ease: 'easeOut' }}
+                initial={{ opacity: 0, scale: 0.92, y: 24 }}
+                animate={{ opacity: 1, scale: 1,    y: 0 }}
+                exit={{    opacity: 0, scale: 0.94,  y: 16 }}
+                transition={{ duration: 0.22, ease: 'easeOut' }}
                 onClick={e => e.stopPropagation()}
-                style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%' }}
+                style={{
+                  width: '100%',
+                  maxHeight: '80vh',
+                  borderRadius: 22,
+                  overflow: 'hidden',
+                  display: 'flex', flexDirection: 'column',
+                  boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                }}
               >
-                {/* Photo top half */}
-                <div style={{ flex: '0 0 55%', overflow: 'hidden' }}>
-                  <img src={ITEMS[selected].src} alt={ITEMS[selected].name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }} />
-                </div>
-                {/* Info bottom half */}
+                {/* Photo */}
+                <motion.div
+                  key={selected}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.18 }}
+                  style={{ flex: '0 0 46%', overflow: 'hidden', position: 'relative' }}
+                >
+                  <img
+                    src={ITEMS[selected].src} alt={ITEMS[selected].name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
+                  />
+                  {/* X — sobre la foto, top right */}
+                  <button
+                    onClick={handleClose}
+                    style={{
+                      position: 'absolute', top: 12, right: 12,
+                      width: 34, height: 34, borderRadius: '50%', border: 'none',
+                      background: 'rgba(0,0,0,0.5)',
+                      backdropFilter: 'blur(6px)',
+                      WebkitBackdropFilter: 'blur(6px)',
+                      cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                      <path d="M1 1l12 12M13 1L1 13" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                  </button>
+                </motion.div>
+
+                {/* Info */}
                 <div style={{
-                  flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
-                  padding: '20px 24px', gap: 10,
-                  background: 'rgba(10,6,30,0.9)',
+                  flex: 1, display: 'flex', flexDirection: 'column',
+                  padding: '16px 20px 20px', gap: 10,
+                  background: 'rgba(10,6,30,0.97)',
                 }}>
-                  <span style={{ display: 'inline-block', fontFamily: 'inherit', fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', background: '#EC3B79', color: 'white', borderRadius: '999px', padding: '4px 12px', alignSelf: 'flex-start' }}>
-                    {ITEMS[selected].tag}
-                  </span>
-                  <h3 style={{ fontFamily: 'inherit', fontSize: 'clamp(1.4rem,6vw,1.8rem)', fontWeight: 900, color: 'white', letterSpacing: '-0.03em', lineHeight: 1, margin: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontFamily: 'inherit', fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', background: '#EC3B79', color: 'white', borderRadius: '999px', padding: '3px 10px' }}>
+                      {ITEMS[selected].tag}
+                    </span>
+                    <span style={{ fontFamily: 'inherit', fontSize: '10px', fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>
+                      {String(selected + 1).padStart(2, '0')} / {String(TOTAL).padStart(2, '0')}
+                    </span>
+                  </div>
+                  <h3 style={{ fontFamily: 'inherit', fontSize: '1.35rem', fontWeight: 900, color: 'white', letterSpacing: '-0.03em', lineHeight: 1, margin: 0 }}>
                     {ITEMS[selected].name}
                   </h3>
-                  <p style={{ fontFamily: 'inherit', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.38)', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>
+                  <p style={{ fontFamily: 'inherit', fontSize: '10px', fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>
                     {ITEMS[selected].designation}
                   </p>
-                  <p style={{ fontFamily: 'inherit', fontSize: 'clamp(0.82rem,4vw,0.95rem)', lineHeight: 1.65, color: 'rgba(255,255,255,0.85)', margin: 0 }}>
-                    {ITEMS[selected].quote}
+                  <p style={{ fontFamily: 'inherit', fontSize: '0.85rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.82)', margin: 0 }}>
+                    "{ITEMS[selected].quote}"
                   </p>
-                  {/* Nav */}
-                  <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 4 }}>
-                    {[[-1, 'M10 3L5 8l5 5'], [1, 'M6 3l5 5-5 5']].map(([dir, path]) => (
-                      <button key={String(dir)} onClick={() => setSelected((selected + Number(dir) + TOTAL) % TOTAL)} style={{ width: 44, height: 44, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d={String(path)} stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  {/* Prev / Next */}
+                  <div style={{ display: 'flex', gap: 8, marginTop: 2 }}>
+                    {([[-1, 'M10 3L5 8l5 5'], [1, 'M6 3l5 5-5 5']] as const).map(([dir, path]) => (
+                      <button
+                        key={String(dir)}
+                        onClick={() => setSelected((selected + Number(dir) + TOTAL) % TOTAL)}
+                        style={{ width: 40, height: 40, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                          <path d={path} stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
                       </button>
                     ))}
-                    <span style={{ fontFamily: 'inherit', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.28)', marginLeft: 4 }}>
-                      {String(selected + 1).padStart(2,'0')} / {String(TOTAL).padStart(2,'0')}
-                    </span>
-                    {/* Close */}
-                    <button onClick={handleClose} style={{ marginLeft: 'auto', width: 44, height: 44, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.15)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1 1l11 11M12 1L1 12" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
-                    </button>
                   </div>
                 </div>
               </motion.div>

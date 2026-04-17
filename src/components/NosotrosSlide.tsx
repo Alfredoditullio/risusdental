@@ -113,93 +113,121 @@ export function NosotrosSlide({ active }: Props) {
           opacity: active ? 1 : 0,
           transition: 'opacity 0.45s ease',
           pointerEvents: 'auto',
-          overflow: 'hidden',
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch' as any,
+          paddingTop: '56px',   /* nav height */
+          paddingBottom: '88px', /* fixed bottom nav */
         }}>
-          {/* Photo — top 42% */}
-          <div style={{ flex: '0 0 42%', position: 'relative', overflow: 'hidden' }}>
-            <img
-              src="/rodrigo_editorial.webp"
-              alt="Rodrigo Melo"
-              style={{
-                position: 'absolute', bottom: 0, left: '50%',
-                transform: 'translateX(-45%)',
-                height: '120%', width: 'auto',
-                objectFit: 'contain', objectPosition: 'bottom center',
-                filter: 'drop-shadow(0 8px 32px rgba(0,0,0,0.5))',
-              }}
-            />
-            {/* Matrícula badge */}
-            <div style={{
-              position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)',
-              background: 'rgba(10,6,30,0.88)',
-              border: '1px solid rgba(255,255,255,0.15)', borderRadius: '999px',
-              padding: '6px 16px', display: 'flex', alignItems: 'center', gap: 6,
-            }}>
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#EC3B79', display: 'block', boxShadow: '0 0 6px #EC3B79' }} />
-              <span style={{ fontFamily: 'inherit', fontSize: '12px', fontWeight: 700, color: 'white', letterSpacing: '0.08em' }}>{slide.matricula}</span>
+
+          {/* ── Top row: nombre izquierda + foto derecha ── */}
+          <div style={{ display: 'flex', alignItems: 'flex-end', flexShrink: 0, minHeight: 220 }}>
+
+            {/* Left: eyebrow + nombre + subtítulo + matrícula */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0 0 16px 20px', gap: 8 }}>
+              <p style={{ fontFamily: 'inherit', fontSize: '8px', fontWeight: 600, letterSpacing: '0.38em', color: 'rgba(255,255,255,0.38)', textTransform: 'uppercase', margin: 0 }}>
+                Risus Dental · Bs As
+              </p>
+              <h2 style={{
+                fontFamily: 'inherit',
+                fontSize: 'clamp(2.2rem, 11vw, 3rem)',
+                fontWeight: 900, color: '#fff',
+                letterSpacing: '-0.04em', lineHeight: 0.88,
+                margin: 0,
+              }}>
+                {slide.headlineTop}<br />{slide.headlineBottom}
+              </h2>
+              {/* Subtítulo badge */}
+              <div>
+                <span style={{
+                  display: 'inline-block', fontFamily: 'inherit',
+                  fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em',
+                  textTransform: 'uppercase', background: '#EC3B79',
+                  color: 'white', padding: '3px 10px 4px', borderRadius: 3,
+                }}>
+                  {slide.subtitle}
+                </span>
+              </div>
+              {/* Matrícula inline */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#EC3B79', flexShrink: 0, boxShadow: '0 0 6px #EC3B79' }} />
+                <span style={{ fontFamily: 'inherit', fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.08em' }}>
+                  {slide.matricula}
+                </span>
+              </div>
+            </div>
+
+            {/* Right: foto */}
+            <div style={{ width: '46%', height: 260, position: 'relative', flexShrink: 0, overflow: 'visible' }}>
+              <img
+                src="/rodrigo_editorial.webp"
+                alt="Rodrigo Melo"
+                style={{
+                  position: 'absolute', bottom: 0, right: 0,
+                  height: '130%', width: 'auto',
+                  objectFit: 'contain', objectPosition: 'bottom right',
+                  filter: 'drop-shadow(-8px 0 24px rgba(0,0,0,0.45))',
+                  pointerEvents: 'none',
+                }}
+              />
             </div>
           </div>
 
-          {/* Content — bottom 58% */}
-          <div style={{
-            flex: 1, overflowY: 'auto',
-            display: 'flex', flexDirection: 'column',
-            padding: '16px 20px 20px',
-            gap: 10,
-            WebkitOverflowScrolling: 'touch' as any,
-          }}>
-            <p style={{ fontFamily: 'inherit', fontSize: '9px', fontWeight: 600, letterSpacing: '0.38em', color: 'rgba(255,255,255,0.38)', textTransform: 'uppercase', margin: 0, textAlign: 'right' }}>
-              Risus Dental · Buenos Aires
-            </p>
-            {/* Name */}
-            <h2 style={{ fontFamily: 'inherit', fontSize: 'clamp(1.9rem,9vw,2.8rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.04em', lineHeight: 0.9, margin: 0, textAlign: 'right' }}>
-              {slide.headlineTop}<br/>{slide.headlineBottom}
-            </h2>
-            {/* Subtitle badge */}
-            <div style={{ textAlign: 'right' }}>
-              <span style={{ display: 'inline-block', fontFamily: 'inherit', fontSize: '10px', fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', background: '#EC3B79', color: 'white', padding: '3px 10px 4px', borderRadius: 3 }}>
-                {slide.subtitle}
+          {/* ── Separator ── */}
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.15)', margin: '6px 20px 0', flexShrink: 0 }} />
+
+          {/* ── Badges ── */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '18px 20px', flexShrink: 0 }}>
+            {BADGES.map(badge => (
+              <span key={badge} style={{
+                fontFamily: 'inherit', fontSize: '10px', fontWeight: 700,
+                letterSpacing: '0.08em', whiteSpace: 'nowrap',
+                color: 'white', background: 'rgba(255,255,255,0.16)',
+                border: '1px solid rgba(255,255,255,0.4)',
+                borderRadius: '999px', padding: '5px 12px',
+              }}>
+                {badge}
               </span>
-            </div>
-            {/* Separator */}
-            <div style={{ height: 1, background: 'rgba(255,255,255,0.15)', borderRadius: 1 }} />
-            {/* Badges */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'flex-end' }}>
-              {BADGES.map(badge => (
-                <span key={badge} style={{ fontFamily: 'inherit', fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', whiteSpace: 'nowrap', color: 'white', background: 'rgba(255,255,255,0.16)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '999px', padding: '5px 12px' }}>
-                  {badge}
-                </span>
-              ))}
-            </div>
-            {/* Bio — first paragraph only */}
-            {BIO_PARAS[0] && (
-              <p style={{ fontFamily: 'inherit', fontSize: 'clamp(0.78rem,3.5vw,0.92rem)', lineHeight: 1.7, margin: 0, textAlign: 'right' }}>
-                <span style={{ background: 'rgba(8,4,24,0.65)', WebkitBoxDecorationBreak: 'clone', boxDecorationBreak: 'clone', padding: '2px 8px 3px', borderRadius: 3, color: 'rgba(255,255,255,0.96)', borderRight: '3px solid rgba(236,59,121,0.85)' }}>
+            ))}
+          </div>
+
+          {/* ── Bio — primer párrafo ── */}
+          {BIO_PARAS[0] && (
+            <div style={{ padding: '0 20px 4px', flexShrink: 0 }}>
+              <p style={{ fontFamily: 'inherit', fontSize: 'clamp(0.78rem,3.5vw,0.9rem)', lineHeight: 1.7, margin: 0 }}>
+                <span style={{
+                  background: 'rgba(8,4,24,0.65)',
+                  WebkitBoxDecorationBreak: 'clone', boxDecorationBreak: 'clone',
+                  padding: '2px 8px 3px', borderRadius: 3,
+                  color: 'rgba(255,255,255,0.96)',
+                  borderLeft: '3px solid rgba(236,59,121,0.85)',
+                }}>
                   {BIO_PARAS[0]}
                 </span>
               </p>
-            )}
-            {/* CTA */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
-              <a
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 10,
-                  background: 'white', borderRadius: '999px', padding: '14px 32px',
-                  fontSize: '12px', fontWeight: 800, letterSpacing: '0.2em',
-                  color: '#EC3B79', textTransform: 'uppercase', textDecoration: 'none',
-                  boxShadow: '0 8px 28px rgba(0,0,0,0.3)',
-                }}
-              >
-                PEDIR TURNO
-                <svg width="14" height="14" viewBox="0 0 13 13" fill="none">
-                  <path d="M2 6.5h9M8 3l4 3.5L8 10" stroke="#EC3B79" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </a>
             </div>
+          )}
+
+          {/* ── CTA ── */}
+          <div style={{ padding: '22px 20px 0', flexShrink: 0 }}>
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 10,
+                background: 'white', borderRadius: '999px', padding: '14px 32px',
+                fontSize: '12px', fontWeight: 800, letterSpacing: '0.2em',
+                color: '#EC3B79', textTransform: 'uppercase', textDecoration: 'none',
+                boxShadow: '0 8px 28px rgba(0,0,0,0.3)',
+              }}
+            >
+              PEDIR TURNO
+              <svg width="14" height="14" viewBox="0 0 13 13" fill="none">
+                <path d="M2 6.5h9M8 3l4 3.5L8 10" stroke="#EC3B79" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </a>
           </div>
+
         </div>
       </div>
     )

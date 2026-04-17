@@ -131,7 +131,7 @@ export function ComunidadSlide({ active }: Props) {
         <div style={{
           position: 'absolute', inset: 0,
           display: 'flex', flexDirection: 'column',
-          padding: '68px 0 72px',
+          padding: '104px 0 72px',
           gap: 'clamp(10px,2vh,18px)',
           opacity: active ? 1 : 0,
           transition: 'opacity 0.45s ease',
@@ -156,7 +156,7 @@ export function ComunidadSlide({ active }: Props) {
           </div>
 
           {/* Two marquee rows — compact */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1, justifyContent: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 24 }}>
             {[{ row: ROW1, dir: 'marquee-left', dur: '28s' }, { row: ROW2, dir: 'marquee-left', dur: '36s' }].map(({ row, dir, dur }, ri) => (
               <div key={ri} style={{
                 overflow: 'hidden',

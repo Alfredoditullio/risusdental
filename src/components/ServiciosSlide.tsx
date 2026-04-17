@@ -10,10 +10,9 @@ const SERVICES = [
   { num:'01', name:'Diseño de Sonrisa', tagline:'Tu sonrisa perfecta',   color:'#EC3B79', icon:'✦', gradient:'linear-gradient(135deg,#EC3B79 0%,#9B59B6 100%)', desc:'Utilizamos tecnología digital de última generación para planificar y crear la sonrisa que siempre soñaste. Análisis facial computarizado, mock-up y materiales de primera calidad para un resultado 100% personalizado.' },
   { num:'02', name:'Blanqueamiento',    tagline:'Dientes luminosos',      color:'#9B59B6', icon:'◈', gradient:'linear-gradient(135deg,#9B59B6 0%,#1E8ED0 100%)', desc:'Tratamientos de blanqueamiento profesional en consultorio y para el hogar. Resultados visibles desde la primera sesión sin comprometer el esmalte dental.' },
   { num:'03', name:'Ortodoncia',        tagline:'Alineación perfecta',    color:'#1E8ED0', icon:'⬡', gradient:'linear-gradient(135deg,#1E8ED0 0%,#6DD5FA 100%)', desc:'Brackets tradicionales, estéticos y alineadores invisibles. Tratamos maloclusiones en todas sus formas con resultados precisos y duraderos.' },
-  { num:'04', name:'Implantes',         tagline:'Para toda la vida',      color:'#F39C12', icon:'◉', gradient:'linear-gradient(135deg,#F39C12 0%,#EC3B79 100%)', desc:'Implantes de titanio de alta precisión que reemplazan raíces dentales perdidas. Proceso mínimamente invasivo con resultados que duran décadas.' },
-  { num:'05', name:'Periodoncia',       tagline:'Salud de encías',        color:'#00B894', icon:'✿', gradient:'linear-gradient(135deg,#00B894 0%,#1E8ED0 100%)', desc:'Diagnóstico y tratamiento de enfermedades periodontales. Curetaje, cirugía y mantenimiento para una salud gingival óptima.' },
-  { num:'06', name:'Endodoncia',        tagline:'Sin dolor, con cuidado', color:'#E17055', icon:'❋', gradient:'linear-gradient(135deg,#E17055 0%,#FAB0EA 100%)', desc:'Tratamientos de conducto con tecnología rotatoria y anestesia profunda. Salvamos piezas comprometidas con máxima efectividad.' },
-  { num:'07', name:'Odontopediatría',   tagline:'Para los más chicos',    color:'#6C5CE7', icon:'★', gradient:'linear-gradient(135deg,#6C5CE7 0%,#EC3B79 100%)', desc:'Atención especializada para niños en un ambiente amigable. Sellantes, fluoruros, prevención y educación en salud bucal desde la primera infancia.' },
+  { num:'04', name:'Periodoncia',       tagline:'Salud de encías',        color:'#00B894', icon:'✿', gradient:'linear-gradient(135deg,#00B894 0%,#1E8ED0 100%)', desc:'Diagnóstico y tratamiento de enfermedades periodontales. Curetaje, cirugía y mantenimiento para una salud gingival óptima.' },
+  { num:'05', name:'Endodoncia',        tagline:'Sin dolor, con cuidado', color:'#E17055', icon:'❋', gradient:'linear-gradient(135deg,#E17055 0%,#FAB0EA 100%)', desc:'Tratamientos de conducto con tecnología rotatoria y anestesia profunda. Salvamos piezas comprometidas con máxima efectividad.' },
+  { num:'06', name:'Odontopediatría',   tagline:'Para los más chicos',    color:'#6C5CE7', icon:'★', gradient:'linear-gradient(135deg,#6C5CE7 0%,#EC3B79 100%)', desc:'Atención especializada para niños en un ambiente amigable. Sellantes, fluoruros, prevención y educación en salud bucal desde la primera infancia.' },
 ]
 
 const CARD_H  = 86
@@ -27,6 +26,9 @@ function MobileServiciosSlide({ active }: { active: boolean }) {
   const [expanded, setExpanded] = useState<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const entryTl = useRef<gsap.core.Timeline | null>(null)
+  // Scroll detection: ignore taps when the finger moved vertically
+  const touchStartY = useRef(0)
+  const didScroll   = useRef(false)
 
   useEffect(() => {
     entryTl.current?.kill()
@@ -73,6 +75,18 @@ function MobileServiciosSlide({ active }: { active: boolean }) {
             return (
               <div
                 key={i}
+                onTouchStart={(e) => {
+                  touchStartY.current = e.touches[0].clientY
+                  didScroll.current = false
+                }}
+                onTouchMove={(e) => {
+                  if (Math.abs(e.touches[0].clientY - touchStartY.current) > 6) {
+                    didScroll.current = true
+                  }
+                }}
+                onTouchEnd={() => {
+                  if (!didScroll.current) setExpanded(isOpen ? null : i)
+                }}
                 onClick={() => setExpanded(isOpen ? null : i)}
                 style={{
                   borderRadius: 12, overflow: 'hidden', flexShrink: 0,

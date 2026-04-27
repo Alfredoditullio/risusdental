@@ -104,7 +104,7 @@ export const slides: SlideData[] = [
     id: 7,
     label: 'Contacto',
     headlineTop: 'TE',
-    headlineBottom: 'ESPERAMOS',
+    headlineBottom: 'ESPERO',
     subtitle:
       'Recoleta, Buenos Aires. Turnos por WhatsApp. Atendemos con obras sociales y prepagas.',
     accentColor: '#EC3B79',

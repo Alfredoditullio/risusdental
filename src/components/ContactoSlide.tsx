@@ -73,93 +73,81 @@ export function ContactoSlide({ active }: Props) {
   // ── Mobile layout ──────────────────────────────────────────────────────────
   if (isMobile) {
     return (
-      <div className={`absolute inset-0 z-10 pointer-events-none ${active ? 'visible' : 'invisible'}`}>
+      <div style={{ position: 'relative', width: '100%', overflowX: 'hidden', paddingBottom: 48 }}>
         <style>{`
           @keyframes ring-out-m { 0% { transform: translate(-50%,-50%) scale(0.2); opacity: 0.9; } 100% { transform: translate(-50%,-50%) scale(3.8); opacity: 0; } }
           @keyframes radar-spin-m { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
           @keyframes dot-pulse-m { 0%, 100% { box-shadow: 0 0 0 0 rgba(236,59,121,0.8); } 50% { box-shadow: 0 0 0 8px rgba(236,59,121,0); } }
         `}</style>
-        <div style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', flexDirection: 'column',
-          paddingTop: '56px',
-          paddingBottom: '88px',
-          pointerEvents: 'auto',
-          overflowY: 'auto',
-          opacity: active ? 1 : 0,
-          transition: 'opacity 0.45s ease',
-          WebkitOverflowScrolling: 'touch' as any,
-        }}>
 
-          {/* ── Top row: texto izquierda + Mona Lisa derecha ── */}
-          <div style={{ display: 'flex', alignItems: 'flex-end', flexShrink: 0, minHeight: 230 }}>
+        {/* ── Top row: texto izquierda + Mona Lisa derecha ── */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', paddingTop: 72, overflow: 'hidden' }}>
 
-            {/* Left: eyebrow + headline + horario */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0 0 18px 20px', gap: 12 }}>
-              <p style={{ fontFamily: 'inherit', fontSize: '8px', fontWeight: 600, letterSpacing: '0.38em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', margin: 0 }}>
-                Risus Dental · Recoleta
-              </p>
-              <h2 style={{ fontFamily: 'inherit', fontSize: 'clamp(2.4rem,11vw,3.2rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.04em', lineHeight: 0.88, margin: 0 }}>
-                TE<br/>ESPERAMOS
-              </h2>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '999px', padding: '7px 14px', alignSelf: 'flex-start' }}>
-                <span style={{ fontSize: '14px', lineHeight: 1 }}>🕐</span>
-                <p style={{ fontFamily: 'inherit', fontSize: '12px', fontWeight: 700, color: 'white', margin: 0 }}>Lun–Vie · 9–21 hs</p>
-              </div>
-            </div>
-
-            {/* Right: Mona Lisa */}
-            <div style={{ width: '44%', height: 270, position: 'relative', flexShrink: 0, overflow: 'visible' }}>
-              <img
-                src="/monalisa_nobg.webp"
-                alt="Mona Lisa"
-                style={{
-                  position: 'absolute', bottom: 0, right: 0,
-                  height: '125%', width: 'auto',
-                  objectFit: 'contain', objectPosition: 'bottom right',
-                  filter: 'drop-shadow(-8px 0 24px rgba(0,0,0,0.45))',
-                  pointerEvents: 'none',
-                }}
-              />
+          {/* Left: eyebrow + headline + horario */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0 0 16px 20px', gap: 10 }}>
+            <p style={{ fontFamily: 'inherit', fontSize: '8px', fontWeight: 600, letterSpacing: '0.38em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', margin: 0 }}>
+              Risus Dental · Recoleta
+            </p>
+            <h2 style={{ fontFamily: 'inherit', fontSize: 'clamp(2.4rem,11vw,3.2rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.04em', lineHeight: 0.88, margin: 0 }}>
+              TE<br/>ESPERO
+            </h2>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '999px', padding: '7px 14px', alignSelf: 'flex-start' }}>
+              <span style={{ fontSize: '14px', lineHeight: 1 }}>🕐</span>
+              <p style={{ fontFamily: 'inherit', fontSize: '12px', fontWeight: 700, color: 'white', margin: 0 }}>Lun–Vie · 9–21 hs</p>
             </div>
           </div>
 
-          {/* ── Separator ── */}
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.12)', margin: '0 20px 16px', flexShrink: 0 }} />
-
-          {/* ── Map ── */}
-          <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', margin: '0 20px', height: 160, boxShadow: '0 12px 40px rgba(0,0,0,0.5), 0 0 0 1.5px rgba(255,255,255,0.14)', flexShrink: 0 }}>
-            <iframe src={MAPS_EMBED} title="Ubicación Risus Dental" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', filter: 'saturate(0.7) contrast(1.05) brightness(0.9)' }} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
-            <div style={{ position: 'absolute', inset: 0, background: 'conic-gradient(from 0deg, transparent 0deg, rgba(236,59,121,0.18) 40deg, transparent 41deg)', animation: active ? 'radar-spin-m 3.5s linear infinite' : 'none', pointerEvents: 'none', mixBlendMode: 'screen' }} />
-            {[0, 0.8, 1.6].map(delay => (
-              <div key={delay} style={{ position: 'absolute', left: '50%', top: '47%', width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(236,59,121,0.7)', animation: active ? `ring-out-m 2.4s ease-out ${delay}s infinite` : 'none', pointerEvents: 'none' }} />
-            ))}
-            <div style={{ position: 'absolute', left: '50%', top: '47%', transform: 'translate(-50%,-50%)', width: 10, height: 10, borderRadius: '50%', background: '#EC3B79', border: '2px solid white', animation: active ? 'dot-pulse-m 1.8s ease-in-out infinite' : 'none', zIndex: 2, pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.72)', padding: '7px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 3 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#EC3B79', flexShrink: 0, boxShadow: '0 0 5px #EC3B79' }} />
-                <span style={{ fontFamily: 'inherit', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>Paraguay 2475, Recoleta · CABA</span>
-              </div>
-              <a href={MAPS_LINK} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'inherit', fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#EC3B79', textDecoration: 'none', flexShrink: 0 }}>Ver Maps →</a>
-            </div>
+          {/* Right: Mona Lisa — clipped para no causar scroll horizontal */}
+          <div style={{ width: '44%', height: 280, position: 'relative', flexShrink: 0, overflow: 'hidden' }}>
+            <img
+              src="/monalisa_nobg.webp"
+              alt="Mona Lisa"
+              style={{
+                position: 'absolute', bottom: 0, right: '-4px',
+                height: '118%', width: 'auto',
+                objectFit: 'contain', objectPosition: 'bottom right',
+                filter: 'drop-shadow(-8px 0 24px rgba(0,0,0,0.45))',
+                pointerEvents: 'none',
+              }}
+            />
           </div>
-
-          {/* ── CTA ── */}
-          <div style={{ padding: '16px 20px 0', flexShrink: 0 }}>
-            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'white', borderRadius: '999px', padding: '14px 30px', fontSize: '12px', fontWeight: 800, letterSpacing: '0.18em', color: '#EC3B79', textTransform: 'uppercase', textDecoration: 'none', boxShadow: '0 8px 28px rgba(0,0,0,0.3)' }}>
-              PEDIR TURNO
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                <path d="M2 6.5h9M8 3l4 3.5L8 10" stroke="#EC3B79" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </a>
-          </div>
-
-          {/* ── Socials ── */}
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '16px 20px 0', flexShrink: 0 }}>
-            <GradientSocials />
-          </div>
-
         </div>
+
+        {/* ── Separator ── */}
+        <div style={{ height: 1, background: 'rgba(255,255,255,0.12)', margin: '0 20px 16px' }} />
+
+        {/* ── Map ── */}
+        <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', margin: '0 20px', height: 160, boxShadow: '0 12px 40px rgba(0,0,0,0.5), 0 0 0 1.5px rgba(255,255,255,0.14)' }}>
+          <iframe src={MAPS_EMBED} title="Ubicación Risus Dental" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', filter: 'saturate(0.7) contrast(1.05) brightness(0.9)' }} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+          <div style={{ position: 'absolute', inset: 0, background: 'conic-gradient(from 0deg, transparent 0deg, rgba(236,59,121,0.18) 40deg, transparent 41deg)', animation: active ? 'radar-spin-m 3.5s linear infinite' : 'none', pointerEvents: 'none', mixBlendMode: 'screen' }} />
+          {[0, 0.8, 1.6].map(delay => (
+            <div key={delay} style={{ position: 'absolute', left: '50%', top: '47%', width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(236,59,121,0.7)', animation: active ? `ring-out-m 2.4s ease-out ${delay}s infinite` : 'none', pointerEvents: 'none' }} />
+          ))}
+          <div style={{ position: 'absolute', left: '50%', top: '47%', transform: 'translate(-50%,-50%)', width: 10, height: 10, borderRadius: '50%', background: '#EC3B79', border: '2px solid white', animation: active ? 'dot-pulse-m 1.8s ease-in-out infinite' : 'none', zIndex: 2, pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.72)', padding: '7px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 3 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#EC3B79', flexShrink: 0, boxShadow: '0 0 5px #EC3B79' }} />
+              <span style={{ fontFamily: 'inherit', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>Paraguay 2475, Recoleta · CABA</span>
+            </div>
+            <a href={MAPS_LINK} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'inherit', fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#EC3B79', textDecoration: 'none', flexShrink: 0 }}>Ver Maps →</a>
+          </div>
+        </div>
+
+        {/* ── CTA ── */}
+        <div style={{ padding: '18px 20px 0' }}>
+          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'white', borderRadius: '999px', padding: '14px 30px', fontSize: '12px', fontWeight: 800, letterSpacing: '0.18em', color: '#EC3B79', textTransform: 'uppercase', textDecoration: 'none', boxShadow: '0 8px 28px rgba(0,0,0,0.3)' }}>
+            PEDIR TURNO
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M2 6.5h9M8 3l4 3.5L8 10" stroke="#EC3B79" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </a>
+        </div>
+
+        {/* ── Socials — más separación del botón, íconos más chicos ── */}
+        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 28, transform: 'scale(0.8)', transformOrigin: 'center top' }}>
+          <GradientSocials />
+        </div>
+
       </div>
     )
   }
@@ -203,7 +191,7 @@ export function ContactoSlide({ active }: Props) {
             textShadow: '0 4px 40px rgba(0,0,0,0.35)',
             margin: 0,
           }}>
-            TE<br/>ESPERAMOS
+            TE<br/>ESPERO
           </h2>
 
           {/* Horario */}

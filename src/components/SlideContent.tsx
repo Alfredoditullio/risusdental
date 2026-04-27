@@ -233,11 +233,10 @@ export function SlideContent({ slide, active, index }: SlideContentProps) {
             alt=""
             style={{
               position: 'absolute',
-              left: '50%',
-              transform: 'translateX(-62%)',
-              bottom: '220px',
-              width: '62vw',
-              maxWidth: '280px',
+              right: '-8px',
+              bottom: '150px',
+              width: '56vw',
+              maxWidth: '240px',
               height: 'auto',
               mixBlendMode: 'multiply',
               opacity: 0.92,

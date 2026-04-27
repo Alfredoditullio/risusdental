@@ -391,7 +391,7 @@ export function ContactoSlide({ active }: Props) {
               position: 'absolute',
               left: '45%',
               top: '27.9%',
-              transform: 'translate(-50%, -50%)',
+              transform: 'translate(-50%, calc(-50% + 75px))',
               width: 'clamp(70px,14%,130px)',
               height: 'auto',
               filter: 'drop-shadow(0 4px 14px rgba(236,59,121,0.7))',

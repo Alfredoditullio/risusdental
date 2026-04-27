@@ -7,11 +7,12 @@ interface NavProps {
 }
 
 const NAV_LINKS = [
-  { label: 'NOSOTROS',  idx: 1 },
+  { label: 'SOBRE MÍ',  idx: 1 },
   { label: 'SERVICIOS', idx: 2 },
   { label: 'GALERÍA',   idx: 3 },
-  { label: 'COMUNIDAD', idx: 4 },
-  { label: 'CONTACTO',  idx: 5 },
+  { label: 'PROYECTOS', idx: 4 },
+  { label: 'COMUNIDAD', idx: 5 },
+  { label: 'CONTACTO',  idx: 6 },
 ]
 
 export function Nav({ onNavigate }: NavProps) {

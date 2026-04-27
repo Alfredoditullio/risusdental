@@ -4,7 +4,7 @@
  * Click → lightbox con foto + testimonio.
  * Mobile → scrollable 2-col grid + lightbox vertical.
  */
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useIsMobile } from '../hooks/useIsMobile'
 
@@ -81,9 +81,6 @@ export function GallerySlide({ active }: Props) {
   const isMobile = useIsMobile()
   const [hovered,  setHovered]  = useState<number | null>(null)
   const [selected, setSelected] = useState<number | null>(null)
-  // Swipe vs tap detection for carousel
-  const touchStartX = useRef(0)
-  const didSwipe    = useRef(false)
 
   const handleClose = useCallback(() => setSelected(null), [])
 
@@ -99,84 +96,66 @@ export function GallerySlide({ active }: Props) {
   // ── Mobile layout ─────────────────────────────────────────────────────────
   if (isMobile) {
     return (
-      <div className={`absolute inset-0 z-10 pointer-events-none ${active ? 'visible' : 'invisible'}`}>
-        <style>{`.gallery-carousel::-webkit-scrollbar { display: none }`}</style>
+      <div style={{ position: 'relative', width: '100%', paddingTop: 80, paddingBottom: 48 }}>
 
-        <div style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', flexDirection: 'column',
-          paddingTop: '68px',
-          paddingBottom: '80px',
-          gap: 16,
-          pointerEvents: 'auto',
-          opacity: active ? 1 : 0,
-          transition: 'opacity 0.45s ease',
-        }}>
-          {/* Headline */}
-          <div style={{ padding: '0 20px', flexShrink: 0 }}>
-            <p style={{ fontFamily: 'inherit', fontSize: '9px', fontWeight: 600, letterSpacing: '0.38em', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', margin: '0 0 6px' }}>
-              Risus Dental · Galería
-            </p>
-            <h2 style={{ fontFamily: 'inherit', fontSize: 'clamp(1.8rem,8vw,2.4rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.04em', lineHeight: 0.9, margin: 0 }}>
-              SONRISAS REALES
-            </h2>
-          </div>
-
-          {/* Snap carousel — horizontal swipe, one card at a time */}
-          <div
-            className="gallery-carousel"
-            style={{
-              flex: 1,
-              display: 'flex',
-              overflowX: 'scroll',
-              scrollSnapType: 'x mandatory',
-              gap: 12,
-              paddingLeft: 20,
-              paddingRight: 20,
-              WebkitOverflowScrolling: 'touch',
-              scrollbarWidth: 'none',
-            }}
-          >
-            {ITEMS.map((item, i) => (
-              <div
-                key={item.src}
-                onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; didSwipe.current = false }}
-                onTouchMove={(e)  => { if (Math.abs(e.touches[0].clientX - touchStartX.current) > 8) didSwipe.current = true }}
-                onTouchEnd={() => { if (!didSwipe.current) setSelected(i) }}
-                onClick={() => setSelected(i)}
-                style={{
-                  flexShrink: 0,
-                  width: 'calc(100vw - 64px)',
-                  scrollSnapAlign: 'center',
-                  borderRadius: 18,
-                  overflow: 'hidden',
-                  position: 'relative',
-                  cursor: 'pointer',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.45)',
-                }}
-              >
-                <img
-                  src={item.src} alt={item.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
-                />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, transparent 55%)' }} />
-                {/* Counter badge — top right */}
-                <div style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(0,0,0,0.52)', borderRadius: '999px', padding: '3px 10px' }}>
-                  <span style={{ fontFamily: 'inherit', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>
-                    {String(i + 1).padStart(2, '0')} / {String(TOTAL).padStart(2, '0')}
-                  </span>
-                </div>
-                {/* Name + tag — bottom */}
-                <div style={{ position: 'absolute', bottom: 14, left: 16, right: 16 }}>
-                  <p style={{ fontFamily: 'inherit', fontSize: '14px', fontWeight: 800, color: 'white', margin: '0 0 4px', lineHeight: 1.1 }}>{item.name}</p>
-                  <p style={{ fontFamily: 'inherit', fontSize: '9px', fontWeight: 700, color: 'rgba(236,59,121,0.95)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{item.tag}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* Intro text */}
+        <div style={{ padding: '0 20px 24px' }}>
+          <p style={{
+            fontFamily: 'inherit', fontSize: '9px', fontWeight: 600,
+            letterSpacing: '0.38em', color: 'rgba(255,255,255,0.35)',
+            textTransform: 'uppercase', margin: '0 0 8px',
+          }}>
+            Risus Dental · Galería
+          </p>
+          <h2 style={{
+            fontFamily: 'inherit', fontSize: 'clamp(2rem,9vw,2.6rem)',
+            fontWeight: 900, color: '#fff', letterSpacing: '-0.04em',
+            lineHeight: 0.9, margin: '0 0 12px',
+          }}>
+            SONRISAS<br />REALES
+          </h2>
+          <p style={{
+            fontFamily: 'inherit', fontSize: '0.82rem', lineHeight: 1.55,
+            color: 'rgba(255,255,255,0.5)', margin: 0,
+          }}>
+            Casos reales de pacientes. Tocá cualquier foto para ver el testimonio.
+          </p>
         </div>
 
-        {/* Mobile Lightbox — modal flotante, fondo visible alrededor */}
+        {/* 2-column photo grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: 8,
+          padding: '0 16px',
+        }}>
+          {ITEMS.map((item, i) => (
+            <div
+              key={item.src}
+              onClick={() => setSelected(i)}
+              style={{
+                position: 'relative',
+                aspectRatio: '3/4',
+                borderRadius: 14,
+                overflow: 'hidden',
+                cursor: 'pointer',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.45)',
+              }}
+            >
+              <img
+                src={item.src} alt={item.name}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
+              />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 50%)' }} />
+              <div style={{ position: 'absolute', bottom: 10, left: 10, right: 10 }}>
+                <p style={{ fontFamily: 'inherit', fontSize: '11px', fontWeight: 800, color: 'white', margin: '0 0 3px', lineHeight: 1.1 }}>{item.name}</p>
+                <p style={{ fontFamily: 'inherit', fontSize: '8px', fontWeight: 700, color: '#EC3B79', margin: 0, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{item.tag}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Mobile Lightbox — position: fixed so it covers full viewport when scrolled */}
         <AnimatePresence>
           {selected !== null && (
             <motion.div
@@ -186,16 +165,15 @@ export function GallerySlide({ active }: Props) {
               transition={{ duration: 0.18 }}
               onClick={handleClose}
               style={{
-                position: 'absolute', inset: 0,
-                background: 'rgba(0,0,0,0.55)',
-                backdropFilter: 'blur(4px)',
-                WebkitBackdropFilter: 'blur(4px)',
+                position: 'fixed', inset: 0,
+                background: 'rgba(0,0,0,0.6)',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                zIndex: 100, pointerEvents: 'auto',
-                padding: '0 16px',
+                zIndex: 300, padding: '0 16px',
               }}
             >
-              {/* Card flotante — NO full screen */}
+              {/* Card flotante — NOT full screen, background visible around it */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.92, y: 24 }}
                 animate={{ opacity: 1, scale: 1,    y: 0 }}
@@ -204,33 +182,27 @@ export function GallerySlide({ active }: Props) {
                 onClick={e => e.stopPropagation()}
                 style={{
                   width: '100%',
-                  maxHeight: '80vh',
+                  maxHeight: '82vh',
                   borderRadius: 22,
                   overflow: 'hidden',
                   display: 'flex', flexDirection: 'column',
-                  boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
+                  boxShadow: '0 24px 80px rgba(0,0,0,0.75)',
                   border: '1px solid rgba(255,255,255,0.1)',
                 }}
               >
                 {/* Photo */}
-                <motion.div
-                  key={selected}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.18 }}
-                  style={{ flex: '0 0 46%', overflow: 'hidden', position: 'relative' }}
-                >
+                <div style={{ flex: '0 0 48%', overflow: 'hidden', position: 'relative' }}>
                   <img
                     src={ITEMS[selected].src} alt={ITEMS[selected].name}
                     style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
                   />
-                  {/* X — sobre la foto, top right */}
+                  {/* Close button on photo */}
                   <button
                     onClick={handleClose}
                     style={{
                       position: 'absolute', top: 12, right: 12,
                       width: 34, height: 34, borderRadius: '50%', border: 'none',
-                      background: 'rgba(0,0,0,0.5)',
+                      background: 'rgba(0,0,0,0.52)',
                       backdropFilter: 'blur(6px)',
                       WebkitBackdropFilter: 'blur(6px)',
                       cursor: 'pointer',
@@ -241,13 +213,14 @@ export function GallerySlide({ active }: Props) {
                       <path d="M1 1l12 12M13 1L1 13" stroke="white" strokeWidth="2" strokeLinecap="round"/>
                     </svg>
                   </button>
-                </motion.div>
+                </div>
 
                 {/* Info */}
                 <div style={{
                   flex: 1, display: 'flex', flexDirection: 'column',
                   padding: '16px 20px 20px', gap: 10,
                   background: 'rgba(10,6,30,0.97)',
+                  overflowY: 'auto',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <span style={{ fontFamily: 'inherit', fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', background: '#EC3B79', color: 'white', borderRadius: '999px', padding: '3px 10px' }}>
@@ -267,7 +240,7 @@ export function GallerySlide({ active }: Props) {
                     "{ITEMS[selected].quote}"
                   </p>
                   {/* Prev / Next */}
-                  <div style={{ display: 'flex', gap: 8, marginTop: 2 }}>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
                     {([[-1, 'M10 3L5 8l5 5'], [1, 'M6 3l5 5-5 5']] as const).map(([dir, path]) => (
                       <button
                         key={String(dir)}
@@ -331,7 +304,7 @@ export function GallerySlide({ active }: Props) {
       {/* ── Card fan row ── */}
       <div style={{
         position: 'absolute',
-        bottom: 'clamp(80px,12vh,140px)',
+        bottom: 'clamp(193px,calc(12vh + 113px),253px)',
         left: 0, right: 0,
         display: 'flex',
         justifyContent: 'center',

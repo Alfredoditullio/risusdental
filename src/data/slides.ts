@@ -37,7 +37,7 @@ export const slides: SlideData[] = [
   },
   {
     id: 2,
-    label: 'Nosotros',
+    label: 'Sobre Mí',
     headlineTop: 'RODRIGO',
     headlineBottom: 'MELO',
     subtitle: 'Esp. en ortodoncia y estética facial',
@@ -77,7 +77,20 @@ export const slides: SlideData[] = [
   },
   {
     id: 5,
+    label: 'Proyectos',
+    headlineTop: 'MIS',
+    headlineBottom: 'PROYECTOS',
+    subtitle: 'Marcas y comunidades que nacieron de la misma vocación.',
+    accentColor: '#6DD5FA',
+    bgGradient:
+      'linear-gradient(135deg, #0f2a4a 0%, #1E8ED0 25%, #6DD5FA 50%, #9B59B6 75%, #EC3B79 100%)',
+    shape: 'none',
+    ctaText: 'VER MÁS',
+  },
+  {
+    id: 6,
     label: 'Comunidad',
+    // id stays 6 — array index is what matters for navigation
     headlineTop: 'LO DICEN',
     headlineBottom: 'ELLOS',
     subtitle: 'Reseñas reales, reels y la comunidad que nos eligió.',
@@ -88,7 +101,7 @@ export const slides: SlideData[] = [
     ctaText: 'VER COMUNIDAD',
   },
   {
-    id: 6,
+    id: 7,
     label: 'Contacto',
     headlineTop: 'TE',
     headlineBottom: 'ESPERAMOS',

@@ -227,23 +227,41 @@ export function SlideContent({ slide, active, index }: SlideContentProps) {
         <div ref={containerRef}
              className={`absolute inset-0 z-10 pointer-events-none ${active ? 'visible' : 'invisible'}`}>
 
-          {/* Diente — derecha, mitad inferior, fondo eliminado con multiply */}
-          <img
-            src="/diente.png"
-            alt=""
-            style={{
-              position: 'absolute',
-              right: '-8px',
-              bottom: '150px',
-              width: '56vw',
-              maxWidth: '240px',
-              height: 'auto',
-              mixBlendMode: 'multiply',
-              opacity: 0.92,
-              pointerEvents: 'none',
-              filter: 'drop-shadow(0 8px 32px rgba(0,0,0,0.2))',
-            }}
-          />
+          {/* Diente centrado con corazones flotantes */}
+          <div style={{
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            bottom: '270px',
+            width: '52vw',
+            maxWidth: '210px',
+            pointerEvents: 'none',
+          }}>
+            <style>{`
+              @keyframes heroHeart {
+                0%   { transform: translateY(0) scale(1);    opacity: 1;   }
+                100% { transform: translateY(-54px) scale(0.45); opacity: 0; }
+              }
+            `}</style>
+            {/* Corazones SVG — pure CSS, sin JS */}
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="#EC3B79" style={{ position: 'absolute', top: 6,  left: '8%',  animation: 'heroHeart 2.3s ease-out 0s    infinite', filter: 'drop-shadow(0 1px 4px #EC3B7988)' }}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="#6DD5FA" style={{ position: 'absolute', top: 0,  right: '14%', animation: 'heroHeart 2.5s ease-out 0.8s  infinite', filter: 'drop-shadow(0 1px 4px #6DD5FA88)' }}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <svg width="9"  height="9"  viewBox="0 0 24 24" fill="#FAB0EA" style={{ position: 'absolute', top: 18, left: '44%', animation: 'heroHeart 2.1s ease-out 1.6s  infinite', filter: 'drop-shadow(0 1px 4px #FAB0EA88)' }}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <svg width="8"  height="8"  viewBox="0 0 24 24" fill="#EC3B79" style={{ position: 'absolute', top: 10, left: '68%', animation: 'heroHeart 2.4s ease-out 2.3s  infinite', filter: 'drop-shadow(0 1px 4px #EC3B7988)' }}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+
+            <img
+              src="/diente.png"
+              alt=""
+              style={{
+                width: '100%',
+                height: 'auto',
+                mixBlendMode: 'multiply',
+                opacity: 0.93,
+                display: 'block',
+                filter: 'drop-shadow(0 8px 28px rgba(0,0,0,0.15))',
+              }}
+            />
+          </div>
 
           {/* 3-line headline — left-aligned, upper third */}
           <div className="absolute top-[16%] left-0 right-0 flex flex-col items-start pl-6 gap-0">

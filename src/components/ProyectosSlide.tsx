@@ -2,6 +2,7 @@
  * ProyectosSlide — Rodrigo's personal projects:
  * Go Smile · Candy Melo · Odontolatam
  */
+import { useNavigate } from 'react-router-dom'
 import { useIsMobile } from '../hooks/useIsMobile'
 
 interface Props { active: boolean }
@@ -15,7 +16,7 @@ const PROJECTS = [
     accent: '#6DD5FA',
     accentDark: '#1E8ED0',
     emoji: '✦',
-    url: '#',
+    url: '/proyectos/go-smile',
   },
   {
     name: 'Candy Melo',
@@ -25,7 +26,7 @@ const PROJECTS = [
     accent: '#FAB0EA',
     accentDark: '#EC3B79',
     emoji: '✿',
-    url: '#',
+    url: '/proyectos/candy-melo',
   },
   {
     name: 'Odontolatam',
@@ -35,12 +36,13 @@ const PROJECTS = [
     accent: '#9B59B6',
     accentDark: '#6c3483',
     emoji: '◈',
-    url: '#',
+    url: '/proyectos/odontolatam',
   },
 ]
 
 export function ProyectosSlide({ active }: Props) {
   const isMobile = useIsMobile()
+  const navigate = useNavigate()
 
   // ── Mobile ──────────────────────────────────────────────────────────────────
   if (isMobile) {
@@ -74,6 +76,7 @@ export function ProyectosSlide({ active }: Props) {
         {PROJECTS.map((p) => (
           <div
             key={p.name}
+            onClick={() => navigate(p.url)}
             style={{
               flex: 1,
               borderRadius: 16,
@@ -82,6 +85,7 @@ export function ProyectosSlide({ active }: Props) {
               boxShadow: '0 6px 24px rgba(0,0,0,0.35)',
               display: 'flex', flexDirection: 'column',
               minHeight: 0,
+              cursor: 'pointer',
             }}
           >
             {/* Colored header */}
@@ -125,23 +129,17 @@ export function ProyectosSlide({ active }: Props) {
               } as React.CSSProperties}>
                 {p.description}
               </p>
-              <a
-                href={p.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 5,
-                  fontFamily: 'inherit', fontSize: '9px', fontWeight: 800,
-                  letterSpacing: '0.16em', textTransform: 'uppercase',
-                  color: p.accent, textDecoration: 'none', marginTop: 8,
-                  flexShrink: 0,
-                }}
-              >
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 5,
+                fontFamily: 'inherit', fontSize: '9px', fontWeight: 800,
+                letterSpacing: '0.16em', textTransform: 'uppercase',
+                color: p.accent, marginTop: 8, flexShrink: 0,
+              }}>
                 CONOCER MÁS
                 <svg width="9" height="9" viewBox="0 0 11 11" fill="none">
                   <path d="M1.5 5.5h8M6 2l3.5 3.5L6 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </a>
+              </span>
             </div>
           </div>
         ))}
@@ -157,7 +155,7 @@ export function ProyectosSlide({ active }: Props) {
       {/* Headline */}
       <div style={{
         position: 'absolute',
-        top: 'clamp(100px,12vh,150px)',
+        top: 'clamp(110px,14vh,165px)',
         left: '50%',
         transform: 'translateX(-50%)',
         textAlign: 'center',
@@ -193,7 +191,7 @@ export function ProyectosSlide({ active }: Props) {
       {/* Cards row */}
       <div style={{
         position: 'absolute',
-        bottom: 'clamp(80px,14vh,150px)',
+        bottom: 'clamp(100px,20vh,180px)',
         left: '50%',
         transform: 'translateX(-50%)',
         display: 'flex',
@@ -204,6 +202,7 @@ export function ProyectosSlide({ active }: Props) {
         {PROJECTS.map((p, i) => (
           <div
             key={p.name}
+            onClick={() => navigate(p.url)}
             style={{
               flex: 1,
               borderRadius: 22,
@@ -214,6 +213,7 @@ export function ProyectosSlide({ active }: Props) {
               flexDirection: 'column',
               transition: 'transform 0.25s ease, box-shadow 0.25s ease',
               animationDelay: `${i * 0.08}s`,
+              cursor: 'pointer',
             }}
             onMouseEnter={e => {
               const el = e.currentTarget as HTMLElement
@@ -269,25 +269,17 @@ export function ProyectosSlide({ active }: Props) {
               }}>
                 {p.description}
               </p>
-              <a
-                href={p.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 8,
-                  fontFamily: 'inherit', fontSize: '10px', fontWeight: 800,
-                  letterSpacing: '0.2em', textTransform: 'uppercase',
-                  color: p.accent, textDecoration: 'none',
-                  transition: 'gap 0.2s ease',
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.gap = '12px' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.gap = '8px' }}
-              >
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                fontFamily: 'inherit', fontSize: '10px', fontWeight: 800,
+                letterSpacing: '0.2em', textTransform: 'uppercase',
+                color: p.accent,
+              }}>
                 CONOCER MÁS
                 <svg width="10" height="10" viewBox="0 0 11 11" fill="none">
                   <path d="M1.5 5.5h8M6 2l3.5 3.5L6 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </a>
+              </span>
             </div>
           </div>
         ))}

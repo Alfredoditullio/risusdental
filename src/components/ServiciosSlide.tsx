@@ -7,12 +7,12 @@ import { useIsMobile } from '../hooks/useIsMobile'
 interface ServiciosSlideProps { active: boolean }
 
 const SERVICES = [
-  { num:'01', name:'Diseño de Sonrisa', tagline:'Tu sonrisa perfecta',   color:'#EC3B79', icon:'✦', gradient:'linear-gradient(135deg,#EC3B79 0%,#9B59B6 100%)', desc:'Utilizamos tecnología digital de última generación para planificar y crear la sonrisa que siempre soñaste. Análisis facial computarizado, mock-up y materiales de primera calidad para un resultado 100% personalizado.' },
-  { num:'02', name:'Blanqueamiento',    tagline:'Dientes luminosos',      color:'#9B59B6', icon:'◈', gradient:'linear-gradient(135deg,#9B59B6 0%,#1E8ED0 100%)', desc:'Tratamientos de blanqueamiento profesional en consultorio y para el hogar. Resultados visibles desde la primera sesión sin comprometer el esmalte dental.' },
-  { num:'03', name:'Ortodoncia',        tagline:'Alineación perfecta',    color:'#1E8ED0', icon:'⬡', gradient:'linear-gradient(135deg,#1E8ED0 0%,#6DD5FA 100%)', desc:'Brackets tradicionales, estéticos y alineadores invisibles. Tratamos maloclusiones en todas sus formas con resultados precisos y duraderos.' },
-  { num:'04', name:'Periodoncia',       tagline:'Salud de encías',        color:'#00B894', icon:'✿', gradient:'linear-gradient(135deg,#00B894 0%,#1E8ED0 100%)', desc:'Diagnóstico y tratamiento de enfermedades periodontales. Curetaje, cirugía y mantenimiento para una salud gingival óptima.' },
-  { num:'05', name:'Endodoncia',        tagline:'Sin dolor, con cuidado', color:'#E17055', icon:'❋', gradient:'linear-gradient(135deg,#E17055 0%,#FAB0EA 100%)', desc:'Tratamientos de conducto con tecnología rotatoria y anestesia profunda. Salvamos piezas comprometidas con máxima efectividad.' },
-  { num:'06', name:'Odontopediatría',   tagline:'Para los más chicos',    color:'#6C5CE7', icon:'★', gradient:'linear-gradient(135deg,#6C5CE7 0%,#EC3B79 100%)', desc:'Atención especializada para niños en un ambiente amigable. Sellantes, fluoruros, prevención y educación en salud bucal desde la primera infancia.' },
+  { num:'01', name:'Odontología General', tagline:'Consultas, arreglos y urgencias', color:'#1E8ED0', icon:'⊕', gradient:'linear-gradient(135deg,#1E8ED0 0%,#6DD5FA 100%)', desc:'Atención integral para toda la familia: consultas de rutina, arreglos dentales, urgencias y tratamientos preventivos. El primer paso para una boca sana.' },
+  { num:'02', name:'Blanqueamiento',      tagline:'Dientes luminosos',               color:'#9B59B6', icon:'◈', gradient:'linear-gradient(135deg,#9B59B6 0%,#1E8ED0 100%)', desc:'Tratamientos de blanqueamiento profesional en consultorio y para el hogar. Resultados visibles desde la primera sesión sin comprometer el esmalte dental.' },
+  { num:'03', name:'Ortodoncia',          tagline:'Alineación perfecta',             color:'#EC3B79', icon:'⬡', gradient:'linear-gradient(135deg,#EC3B79 0%,#9B59B6 100%)', desc:'Brackets tradicionales, estéticos y alineadores invisibles. Tratamos maloclusiones en todas sus formas con resultados precisos y duraderos.' },
+  { num:'04', name:'Periodoncia',         tagline:'Salud de encías',                 color:'#00B894', icon:'✿', gradient:'linear-gradient(135deg,#00B894 0%,#1E8ED0 100%)', desc:'Diagnóstico y tratamiento de enfermedades periodontales. Curetaje, cirugía y mantenimiento para una salud gingival óptima.' },
+  { num:'05', name:'Endodoncia',          tagline:'Sin dolor, con cuidado',          color:'#E17055', icon:'❋', gradient:'linear-gradient(135deg,#E17055 0%,#FAB0EA 100%)', desc:'Tratamientos de conducto con tecnología rotatoria y anestesia profunda. Salvamos piezas comprometidas con máxima efectividad.' },
+  { num:'06', name:'Odontopediatría',     tagline:'Para los más chicos',             color:'#6C5CE7', icon:'★', gradient:'linear-gradient(135deg,#6C5CE7 0%,#EC3B79 100%)', desc:'Atención especializada para niños en un ambiente amigable. Sellantes, fluoruros, prevención y educación en salud bucal desde la primera infancia.' },
 ]
 
 const CARD_H  = 86
@@ -21,14 +21,10 @@ const VISIBLE  = 4
 const STEP     = CARD_H + CARD_GAP
 const MAX_OFF  = (SERVICES.length - VISIBLE) * STEP
 
-// ── Mobile accordion component ────────────────────────────────────────────────
+// ── Mobile services component — no internal scroll ────────────────────────────
 function MobileServiciosSlide({ active }: { active: boolean }) {
-  const [expanded, setExpanded] = useState<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const entryTl = useRef<gsap.core.Timeline | null>(null)
-  // Scroll detection: ignore taps when the finger moved vertically
-  const touchStartY = useRef(0)
-  const didScroll   = useRef(false)
 
   useEffect(() => {
     entryTl.current?.kill()
@@ -39,7 +35,6 @@ function MobileServiciosSlide({ active }: { active: boolean }) {
       tl.to(containerRef.current, { y: 0, opacity: 1, duration: 0.6, ease: 'expo.out' })
     } else {
       tl.to(containerRef.current, { opacity: 0, duration: 0.2, ease: 'power2.in' })
-      setExpanded(null)
     }
     return () => { entryTl.current?.kill() }
   }, [active])
@@ -51,85 +46,64 @@ function MobileServiciosSlide({ active }: { active: boolean }) {
         style={{
           position: 'absolute', inset: 0,
           display: 'flex', flexDirection: 'column',
-          padding: '68px 16px 76px',
-          gap: 10,
+          padding: '68px 14px 20px',
+          gap: 8,
           pointerEvents: 'auto',
           opacity: 0,
+          overflow: 'hidden',
         }}
       >
         {/* Headline */}
-        <div style={{ flexShrink: 0 }}>
-          <p style={{ fontFamily: 'inherit', fontSize: '9px', fontWeight: 600, letterSpacing: '0.38em', color: 'rgba(255,255,255,0.38)', textTransform: 'uppercase', margin: '0 0 6px' }}>
+        <div style={{ flexShrink: 0, marginBottom: 2 }}>
+          <p style={{ fontFamily: 'inherit', fontSize: '9px', fontWeight: 600, letterSpacing: '0.38em', color: 'rgba(255,255,255,0.38)', textTransform: 'uppercase', margin: '0 0 4px' }}>
             Risus Dental · Buenos Aires
           </p>
-          <h2 style={{ fontFamily: 'inherit', fontSize: 'clamp(1.9rem,9vw,2.8rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.04em', lineHeight: 0.9, margin: '0 0 10px' }}>
+          <h2 style={{ fontFamily: 'inherit', fontSize: 'clamp(1.6rem,8vw,2.4rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.04em', lineHeight: 0.9, margin: '0 0 8px' }}>
             TRATAMIENTOS
           </h2>
-          <div style={{ width: 40, height: 3, background: 'linear-gradient(90deg,#EC3B79,#9B59B6)', borderRadius: 2 }} />
+          <div style={{ width: 36, height: 3, background: 'linear-gradient(90deg,#EC3B79,#9B59B6)', borderRadius: 2 }} />
         </div>
 
-        {/* Scrollable service cards */}
-        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8, WebkitOverflowScrolling: 'touch' as any }}>
-          {SERVICES.map((svc, i) => {
-            const isOpen = expanded === i
-            return (
-              <div
-                key={i}
-                onTouchStart={(e) => {
-                  touchStartY.current = e.touches[0].clientY
-                  didScroll.current = false
-                }}
-                onTouchMove={(e) => {
-                  if (Math.abs(e.touches[0].clientY - touchStartY.current) > 6) {
-                    didScroll.current = true
-                  }
-                }}
-                onTouchEnd={() => {
-                  if (!didScroll.current) setExpanded(isOpen ? null : i)
-                }}
-                onClick={() => setExpanded(isOpen ? null : i)}
-                style={{
-                  borderRadius: 12, overflow: 'hidden', flexShrink: 0,
-                  border: `1px solid ${isOpen ? svc.color + '80' : 'rgba(255,255,255,0.1)'}`,
-                  boxShadow: isOpen ? `0 0 18px ${svc.color}30` : 'none',
-                  transition: 'border-color 0.22s, box-shadow 0.22s',
-                  cursor: 'pointer',
-                }}
-              >
-                {/* Card header */}
-                <div style={{ display: 'flex', alignItems: 'stretch', height: 68 }}>
-                  <div style={{ width: 46, flexShrink: 0, background: svc.gradient, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                    <span style={{ fontSize: '16px', lineHeight: 1 }}>{svc.icon}</span>
-                    <span style={{ fontFamily: 'inherit', fontSize: '7px', fontWeight: 800, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.05em' }}>{svc.num}</span>
-                  </div>
-                  <div style={{ flex: 1, background: isOpen ? 'rgba(0,0,0,0.45)' : 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', padding: '0 12px', gap: 8, transition: 'background 0.22s' }}>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontFamily: 'inherit', fontSize: '13px', fontWeight: 700, color: '#fff', margin: 0, lineHeight: 1.2 }}>{svc.name}</p>
-                      <p style={{ fontFamily: 'inherit', fontSize: '10px', color: 'rgba(255,255,255,0.38)', margin: '3px 0 0' }}>{svc.tagline}</p>
-                    </div>
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0, transition: 'transform 0.22s', transform: isOpen ? 'rotate(90deg)' : 'none', color: isOpen ? svc.color : 'rgba(255,255,255,0.25)' }}>
-                      <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                </div>
-                {/* Expanded description */}
-                {isOpen && (
-                  <div style={{ background: 'rgba(0,0,0,0.55)', padding: '12px 14px 14px', borderTop: `1px solid ${svc.color}40` }}>
-                    <p style={{ fontFamily: 'inherit', fontSize: '12px', lineHeight: 1.65, color: 'rgba(255,255,255,0.82)', margin: '0 0 12px' }}>{svc.desc}</p>
-                    <a
-                      href={WHATSAPP_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={e => e.stopPropagation()}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#EC3B79,#9B59B6)', borderRadius: '999px', padding: '10px 22px', fontSize: '10px', fontWeight: 800, letterSpacing: '0.18em', color: 'white', textTransform: 'uppercase', textDecoration: 'none' }}
-                    >
-                      PEDIR TURNO
-                    </a>
-                  </div>
-                )}
+        {/* Cards — flex:1 so they fill the remaining space equally, no scroll */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, overflow: 'hidden', minHeight: 0 }}>
+          {SERVICES.map((svc, i) => (
+            <a
+              key={i}
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                flex: 1,
+                display: 'flex', alignItems: 'stretch',
+                borderRadius: 10, overflow: 'hidden',
+                border: '1px solid rgba(255,255,255,0.1)',
+                textDecoration: 'none',
+                minHeight: 0,
+              }}
+            >
+              {/* Color strip */}
+              <div style={{
+                width: 42, flexShrink: 0, background: svc.gradient,
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3,
+              }}>
+                <span style={{ fontSize: '15px', lineHeight: 1 }}>{svc.icon}</span>
+                <span style={{ fontFamily: 'inherit', fontSize: '7px', fontWeight: 800, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em' }}>{svc.num}</span>
               </div>
-            )
-          })}
+              {/* Text */}
+              <div style={{
+                flex: 1, background: 'rgba(0,0,0,0.3)',
+                display: 'flex', alignItems: 'center', padding: '0 12px', gap: 8,
+              }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: 'inherit', fontSize: 'clamp(11px,3vw,14px)', fontWeight: 700, color: '#fff', margin: 0, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{svc.name}</p>
+                  <p style={{ fontFamily: 'inherit', fontSize: '10px', color: 'rgba(255,255,255,0.38)', margin: '2px 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{svc.tagline}</p>
+                </div>
+                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0, color: svc.color }}>
+                  <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+            </a>
+          ))}
         </div>
       </div>
     </div>

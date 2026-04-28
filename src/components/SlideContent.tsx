@@ -232,7 +232,7 @@ export function SlideContent({ slide, active, index }: SlideContentProps) {
             position: 'absolute',
             left: '50%',
             transform: 'translateX(-50%)',
-            bottom: '270px',
+            bottom: '190px',
             width: '52vw',
             maxWidth: '210px',
             pointerEvents: 'none',
@@ -288,7 +288,7 @@ export function SlideContent({ slide, active, index }: SlideContentProps) {
           <div
             ref={infoRef}
             className="absolute left-6 right-6 flex flex-col gap-4"
-            style={{ bottom: '88px', opacity: 0 }}
+            style={{ bottom: '52px', opacity: 0 }}
           >
             <p
               className="font-display font-semibold text-white/90 leading-snug"
